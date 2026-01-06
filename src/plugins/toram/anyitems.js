@@ -49,7 +49,6 @@ export const searchXtall = async (sock, chatId, msg, text) => {
     const messageData = `
 *SEARCH XTALL*
 > By Neura Bot
-
 Nama    : ${xtall.name}
 Type    : ${xtall.type}
 Upgrade : ${xtall.upgrade}
@@ -110,7 +109,6 @@ export const searchRegist = async (sock, chatId, msg, text) => {
     const messageData = `
 *SEARCH REGIST*
 > By Neura Bot
-
 ${data.map((rg, i) => `
    ${rg.name}
    Effect         : ${rg.effect}
@@ -174,7 +172,6 @@ export const searchAbility = async (sock, chatId, msg, text) => {
     const messageData = `
 *SEARCH ABILITY*
 > By Neura Bot
-
 ${data.map((ab, i) => `
    ${ab.name}
    Tier        : ${ab.tier}
@@ -239,13 +236,12 @@ export const searchItem = async (sock, chatId, msg, text) => {
     const messageData = `
 *SEARCH ITEM*
 > By Neura Bot
-
 ${data.map((item, i) => `
-   ${item.nama}
-   Jenis : ${item.jenis}
-   Stat  :
+  ${item.nama}
+  Jenis : ${item.jenis}
+  Stat  :
 ${formatStatList(item.stat)}
-   Drop  : ${item.drop}
+  Drop  : ${item.drop}
 `).join("\n")}
 `.trim();
 
