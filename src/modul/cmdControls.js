@@ -1,6 +1,6 @@
 import { buffMessage, menuMessage } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
-import { createRaid } from "../plugins/toram/raidControl.js";
+import { createRaid, joinRaid } from "../plugins/toram/raidControl.js";
 export const cmdMenucontrol = (sock, chatId, msg, text) => {
   if (text.startsWith("!menu")) {
     if (isBan(sock, chatId, msg)) return;
@@ -27,6 +27,21 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
     }
 
     createRaid(sock, chatId, msg, text, element, hadiah);
+  }
+
+  if (text.startsWith("!join")) {
+    if (isBan(sock, chatId, msg)) return;
+
+    const args = text.split(" ");
+    if (args.length < 3) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Format salah\n> !join <pt1-pt4> <ign>" },
+        { quoted: msg }
+      );
+    }
+
+    joinRaid(sock, chatId, msg, text);
   }
 
 
