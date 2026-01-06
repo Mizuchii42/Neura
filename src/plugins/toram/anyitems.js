@@ -64,6 +64,7 @@ Stat    : ${xtall.stat}
   }
 };
 
+
 export const searchRegist = async (sock, chatId, msg, text) => {
   try {
     const nama = text.replace("!regist", "").trim();
@@ -79,8 +80,7 @@ export const searchRegist = async (sock, chatId, msg, text) => {
     const { data, error } = await supabase
       .from("regist")
       .select("name, effect, max_lv, levels_studied")
-      .ilike("name", `%${nama}%`)
-      .limit(1);
+      .ilike("name", `%${nama}%`);
 
     if (error) {
       console.log(error);
@@ -99,15 +99,16 @@ export const searchRegist = async (sock, chatId, msg, text) => {
       );
     }
 
-    const regist = data[0];
-
     const messageData = `
 *SEARCH REGIST*
 > By Neura Bot
-Name           : ${regist.name}
-Effect         : ${regist.effect}
-Max Level      : ${regist.max_lv}
-Levels Studied : ${regist.levels_studied}
+
+${data.map((rg, i) => `
+${i + 1}. ${rg.name}
+   Effect         : ${rg.effect}
+   Max Level      : ${rg.max_lv}
+   Levels Studied : ${rg.levels_studied}
+`).join("\n")}
 `.trim();
 
     sock.sendMessage(
@@ -127,6 +128,7 @@ Levels Studied : ${regist.levels_studied}
 };
 
 
+
 export const searchAbility = async (sock, chatId, msg, text) => {
   try {
     const nama = text.replace("!ability", "").trim();
@@ -142,8 +144,7 @@ export const searchAbility = async (sock, chatId, msg, text) => {
     const { data, error } = await supabase
       .from("ability")
       .select("name, stat_effect, tier, stat_id")
-      .ilike("name", `%${nama}%`)
-      .limit(1);
+      .ilike("name", `%${nama}%`);
 
     if (error) {
       console.log(error);
@@ -162,15 +163,16 @@ export const searchAbility = async (sock, chatId, msg, text) => {
       );
     }
 
-    const ability = data[0];
-
     const messageData = `
 *SEARCH ABILITY*
 > By Neura Bot
-Name        : ${ability.name}
-Stat Effect : ${ability.stat_effect}
-Tier        : ${ability.tier}
-Stat ID     : ${ability.stat_id}
+
+${data.map((ab, i) => `
+${i + 1}. ${ab.name}
+   Tier        : ${ab.tier}
+   Stat Effect : ${ab.stat_effect}
+   Stat ID     : ${ab.stat_id}
+`).join("\n")}
 `.trim();
 
     sock.sendMessage(
@@ -190,6 +192,7 @@ Stat ID     : ${ability.stat_id}
 };
 
 
+
 export const searchItem = async (sock, chatId, msg, text) => {
   try {
     const namaItem = text.replace("!item", "").trim();
@@ -205,8 +208,7 @@ export const searchItem = async (sock, chatId, msg, text) => {
     const { data, error } = await supabase
       .from("item")
       .select("nama, jenis, stat, drop")
-      .ilike("nama", `%${namaItem}%`)
-      .limit(1);
+      .ilike("nama", `%${namaItem}%`);
 
     if (error) {
       console.log(error);
@@ -225,15 +227,16 @@ export const searchItem = async (sock, chatId, msg, text) => {
       );
     }
 
-    const item = data[0];
-
     const messageData = `
 *SEARCH ITEM*
 > By Neura Bot
-Nama  : ${item.nama}
-Jenis : ${item.jenis}
-Stat  : ${item.stat}
-Drop  : ${item.drop}
+
+${data.map((item, i) => `
+${i + 1}. ${item.nama}
+   Jenis : ${item.jenis}
+   Stat  : ${item.stat}
+   Drop  : ${item.drop}
+`).join("\n")}
 `.trim();
 
     sock.sendMessage(
