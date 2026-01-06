@@ -145,21 +145,20 @@ export const joinRaid = async (sock, chatId, msg, text) => {
         : "-";
 
     const message = `
-=== RAID PARTY UPDATED ===
-
+*RAID PARTY UPDATED*
 Element Boss : ${raid.bos_ele}
 Hadiah       : ${raid.hadiah}
 
-pt1 (${raid.party.pt1.length}/4)
+party 1 (${raid.party.pt1.length}/4)
 ${list("pt1")}
 
-pt2 (${raid.party.pt2.length}/4)
+party 2 (${raid.party.pt2.length}/4)
 ${list("pt2")}
 
-pt3 (${raid.party.pt3.length}/4)
+party 3 (${raid.party.pt3.length}/4)
 ${list("pt3")}
 
-pt4 (${raid.party.pt4.length}/4)
+party 4 (${raid.party.pt4.length}/4)
 ${list("pt4")}
 
 > join: !join <pt1-pt4> <ign>
@@ -196,21 +195,21 @@ export const viewRaid = async (sock, chatId, msg) => {
         : "-";
 
     const message = `
-=== RAID PARTY ===
+*RAID PARTY*
 
 Element Boss : ${raid.bos_ele}
 Hadiah       : ${raid.hadiah}
 
-pt1 (${raid.party.pt1.length}/4)
+party 1 (${raid.party.pt1.length}/4)
 ${list("pt1")}
 
-pt2 (${raid.party.pt2.length}/4)
+party 2 (${raid.party.pt2.length}/4)
 ${list("pt2")}
 
-pt3 (${raid.party.pt3.length}/4)
+party 3 (${raid.party.pt3.length}/4)
 ${list("pt3")}
 
-pt4 (${raid.party.pt4.length}/4)
+party 4 (${raid.party.pt4.length}/4)
 ${list("pt4")}
 
 > join party: !join <pt1-pt4> <ign>
