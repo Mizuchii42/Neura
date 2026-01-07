@@ -151,14 +151,13 @@ export const handleBossCommand = async (sock, msg, text) => {
   const jid = msg.key.remoteJid;
   const args = text.split("|");
 
-
   try {
     await sock.sendMessage(jid, {
       text: "Mengambil data..."
     });
 
     const data = await getBossData();
-    const searchQuery = args[1];
+    const searchQuery = args[0]?.trim();
     const message = formatBossMessage(data, searchQuery || null);
 
     await sock.sendMessage(jid, { text: message });
@@ -171,3 +170,8 @@ export const handleBossCommand = async (sock, msg, text) => {
   }
 };
 
+export default {
+  getBossData,
+  formatBossMessage,
+  handleBossCommand
+};
