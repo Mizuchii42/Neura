@@ -148,7 +148,7 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
   }
   if (text.startsWith("!bosdef")) {
     if (isBan(sock, chatId, msg)) return;
-    const query = text.replace('!bosdef', '').trim();
+    const query = text.substring(8).trim();
     handleBossCommand(sock, msg, query);
   }
 

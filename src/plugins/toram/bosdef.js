@@ -147,9 +147,8 @@ export const formatBossMessage = (data, searchQuery = null) => {
 };
 
 // Fungsi untuk bot Baileys
-export const handleBossCommand = async (sock, msg, text) => {
+export const handleBossCommand = async (sock, msg, searchQuery) => {
   const jid = msg.key.remoteJid;
-  const args = text.split("|");
 
   try {
     await sock.sendMessage(jid, {
@@ -157,8 +156,7 @@ export const handleBossCommand = async (sock, msg, text) => {
     });
 
     const data = await getBossData();
-    const searchQuery = args[0]?.trim();
-    const message = formatBossMessage(data, searchQuery || null);
+    const message = formatBossMessage(data, searchQuery);
 
     await sock.sendMessage(jid, { text: message });
 
@@ -168,6 +166,33 @@ export const handleBossCommand = async (sock, msg, text) => {
       text: "Terjadi kesalahan saat mengambil data."
     });
   }
+};
+
+export default {
+  getBossData,
+  formatBossMessage,
+  handleBossCommand
+};
+const jid = msg.key.remoteJid;
+const args = text.split("|");
+
+try {
+  await sock.sendMessage(jid, {
+    text: "Mengambil data..."
+  });
+
+  const data = await getBossData();
+  const searchQuery = args[0]?.trim();
+  const message = formatBossMessage(data, searchQuery || null);
+
+  await sock.sendMessage(jid, { text: message });
+
+} catch (error) {
+  console.error("Error getting boss data:", error);
+  await sock.sendMessage(jid, {
+    text: "Terjadi kesalahan saat mengambil data."
+  });
+}
 };
 
 export default {
