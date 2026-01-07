@@ -1,4 +1,3 @@
-
 import path from "path";
 import fs from "fs";
 import { getUserData, saveUserData } from "../../config/func.js";
@@ -7,318 +6,319 @@ import { downloadMediaMessage } from "@whiskeysockets/baileys";
 const db = path.resolve("db", "profil.json");
 const profileDir = path.resolve("db", "profiles");
 
-// Pastikan folder profiles ada
 if (!fs.existsSync(profileDir)) {
   fs.mkdirSync(profileDir, { recursive: true });
 }
 
+/* =======================
+   HELPER
+======================= */
+const getUserId = (msg) => {
+  return msg.key.remoteJid.endsWith("@s.whatsapp.net")
+    ? msg.key.remoteJid
+    : msg.key.participant || msg.key.remoteJid;
+};
+
+/* =======================
+   SET PROFILE PICTURE
+======================= */
 export const setPP = async (sock, chatId, msg) => {
   try {
-    let imageMessage = null;
+    let imageMessage;
 
-    // Cek apakah pesan ini adalah reply ke gambar
-    const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-    if (quotedMsg && quotedMsg.imageMessage) {
-      imageMessage = quotedMsg.imageMessage;
-    } else {
-      const messageType = Object.keys(msg.message || {})[0];
-      if (messageType === "imageMessage") {
-        imageMessage = msg.message.imageMessage;
-      }
+    const quoted =
+      msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+
+    if (quoted?.imageMessage) {
+      imageMessage = quoted.imageMessage;
+    } else if (msg.message?.imageMessage) {
+      imageMessage = msg.message.imageMessage;
     }
 
-    // Validasi apakah ada gambar
     if (!imageMessage) {
-      await sock.sendMessage(chatId, {
-        text: "Silakan kirim gambar atau reply gambar untuk mengatur profile picture.\n\nCara penggunaan:\n• Reply gambar dengan perintah !setpp"
-      }, { quoted: msg });
-      return;
+      return sock.sendMessage(
+        chatId,
+        {
+          text:
+            "Silakan kirim atau reply gambar.\n\nContoh:\n• Reply gambar dengan !setpp",
+        },
+        { quoted: msg }
+      );
     }
 
-    // Download gambar
-    let buffer;
-    if (quotedMsg && quotedMsg.imageMessage) {
-      const quotedMsgObj = {
-        message: { imageMessage }
-      };
-      buffer = await downloadMediaMessage(quotedMsgObj, "buffer", {});
-    } else {
-      buffer = await downloadMediaMessage(msg, "buffer", {});
-    }
+    const buffer = await downloadMediaMessage(
+      {
+        key: msg.key,
+        message: { imageMessage },
+      },
+      "buffer",
+      {}
+    );
 
-    // Ambil userId dari pengirim pesan
-    const userId = msg.key.remoteJid.endsWith("@s.whatsapp.net")
-      ? msg.key.remoteJid
-      : msg.key.participant || msg.key.remoteJid;
-
-    // Buat nama file unik berdasarkan userId dan timestamp
-    const timestamp = Date.now();
-    const fileName = `${userId.split("@")[0]}_${timestamp}.jpg`;
+    const userId = getUserId(msg);
+    const fileName = `${userId.split("@")[0]}_${Date.now()}.jpg`;
     const filePath = path.join(profileDir, fileName);
 
-    // Simpan gambar ke disk
     fs.writeFileSync(filePath, buffer);
 
-    // Update database
     const data = getUserData(db);
-    let userEntry = data.find((user) => user.userId === userId);
+    let user = data.find((u) => u.userId === userId);
 
-    if (!userEntry) {
-      const newUser = {
-        userId,
-        bio: "",
-        profilPath: filePath,
-      };
-      data.push(newUser);
-      userEntry = newUser;
+    if (!user) {
+      user = { userId, bio: "", profilPath: filePath, idBuff: null };
+      data.push(user);
     } else {
-      // Hapus gambar lama jika ada
-      if (userEntry.profilPath && fs.existsSync(userEntry.profilPath)) {
-        fs.unlinkSync(userEntry.profilPath);
+      if (user.profilPath && fs.existsSync(user.profilPath)) {
+        fs.unlinkSync(user.profilPath);
       }
-
-      // Update path gambar baru
-      userEntry.profilPath = filePath;
+      user.profilPath = filePath;
     }
 
     saveUserData(db, data);
 
-    await sock.sendMessage(chatId, {
-      text: "Profile picture berhasil diatur!"
-    }, { quoted: msg });
-
+    await sock.sendMessage(
+      chatId,
+      { text: "Profile picture berhasil diatur!" },
+      { quoted: msg }
+    );
   } catch (err) {
     console.error("Error setPP:", err);
-  };
-}
-
-// Fungsi tambahan untuk mendapatkan profile picture
-export const getPP = (userId) => {
-  try {
-    const data = getUserData(db);
-    const userEntry = data.find((user) => user.userId === userId);
-
-    if (userEntry && userEntry.profilPath && fs.existsSync(userEntry.profilPath)) {
-      return fs.readFileSync(userEntry.profilPath);
-    }
-
-    return null;
-  } catch (err) {
-    console.error("Error getPP:", err);
-    return null;
   }
 };
 
-// Fungsi untuk mengatur deskripsi/bio
+/* =======================
+   SET BIO
+======================= */
 export const setDesc = async (sock, chatId, msg, text) => {
   try {
-    const userId = msg.key.remoteJid.endsWith("@s.whatsapp.net")
-      ? msg.key.remoteJid
-      : msg.key.participant || msg.key.remoteJid;
-
-    // Validasi input
-    if (!text || text.trim() === "") {
-      await sock.sendMessage(chatId, {
-        text: "Silakan masukkan deskripsi bio Anda.\n\nContoh: .setdesc Mahasiswa Informatika | Coding Enthusiast"
-      }, { quoted: msg });
-      return;
+    if (!text?.trim()) {
+      return sock.sendMessage(
+        chatId,
+        {
+          text:
+            "Masukkan deskripsi bio.\n\nContoh:\n!setdesc Mahasiswa | Coding",
+        },
+        { quoted: msg }
+      );
     }
 
-    const description = text.trim();
-
-    if (description.length > 500) {
-      await sock.sendMessage(chatId, {
-        text: `Deskripsi terlalu panjang.\n\nPanjang karakter: ${description.length}/500\nSilakan persingkat deskripsi Anda.`
-      }, { quoted: msg });
-      return;
+    if (text.length > 500) {
+      return sock.sendMessage(
+        chatId,
+        { text: `Bio terlalu panjang (${text.length}/500)` },
+        { quoted: msg }
+      );
     }
 
-    // Update database
+    const userId = getUserId(msg);
     const data = getUserData(db);
-    let userEntry = data.find((user) => user.userId === userId);
 
-    if (!userEntry) {
-      const newUser = {
-        userId,
-        bio: description,
-        profilPath: null,
-      };
-      data.push(newUser);
-      userEntry = newUser;
+    let user = data.find((u) => u.userId === userId);
+
+    if (!user) {
+      user = { userId, bio: text.trim(), profilPath: null, idBuff: null };
+      data.push(user);
     } else {
-      // Timpa bio yang lama dengan yang baru
-      userEntry.bio = description;
+      user.bio = text.trim();
     }
 
     saveUserData(db, data);
 
-    await sock.sendMessage(chatId, {
-      text: `Bio berhasil diperbarui!\n\n${description}`
-    }, { quoted: msg });
-
+    sock.sendMessage(
+      chatId,
+      { text: "Bio berhasil diperbarui!" },
+      { quoted: msg }
+    );
   } catch (err) {
     console.error("Error setDesc:", err);
   }
 };
 
-// Fungsi untuk melihat bio sendiri
+/* =======================
+   MY BIO
+======================= */
 export const myBio = async (sock, chatId, msg) => {
   try {
-    const userId = msg.key.remoteJid.endsWith("@s.whatsapp.net")
-      ? msg.key.remoteJid
-      : msg.key.participant || msg.key.remoteJid;
+    const userId = getUserId(msg);
     const data = getUserData(db);
-    const userEntry = data.find((user) => user.userId === userId);
+    const user = data.find((u) => u.userId === userId);
 
-    if (!userEntry || !userEntry.bio) {
-      await sock.sendMessage(chatId, {
-        text: "Bio belum diatur.\n\nGunakan: !setdesc <deskripsi Anda>"
-      }, { quoted: msg });
-      return;
+    if (!user?.bio) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Bio belum diatur.\nGunakan !setdesc" },
+        { quoted: msg }
+      );
     }
 
-    await sock.sendMessage(chatId, {
-      text: userEntry.bio
-    }, { quoted: msg });
-
+    sock.sendMessage(chatId, { text: user.bio }, { quoted: msg });
   } catch (err) {
     console.error("Error myBio:", err);
-  };
-}
+  }
+};
 
-// Fungsi untuk cek bio user lain dengan mention
+/* =======================
+   CEK BIO ORANG
+======================= */
 export const cekBio = async (sock, chatId, msg) => {
   try {
-    // Ambil mentioned user dari pesan
-    const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+    const mention =
+      msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
 
-    if (!mentionedJid || mentionedJid.length === 0) {
-      await sock.sendMessage(chatId, {
-        text: "Silakan mention user yang ingin dicek bio-nya.\n\nContoh: .cekbio @6281234567890"
-      }, { quoted: msg });
-      return;
+    if (!mention) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Mention user.\nContoh: !cekbio @628xxxx" },
+        { quoted: msg }
+      );
     }
 
-    const targetUserId = mentionedJid[0];
     const data = getUserData(db);
-    const userEntry = data.find((user) => user.userId === targetUserId);
+    const user = data.find((u) => u.userId === mention);
 
-    if (!userEntry || !userEntry.bio) {
-      await sock.sendMessage(chatId, {
-        text: "User tersebut belum mengatur bio."
-      }, { quoted: msg });
-      return;
+    if (!user?.bio) {
+      return sock.sendMessage(
+        chatId,
+        { text: "User belum mengatur bio." },
+        { quoted: msg }
+      );
     }
 
-    await sock.sendMessage(chatId, {
-      text: userEntry.bio,
-      mentions: [targetUserId]
-    }, { quoted: msg });
-
+    sock.sendMessage(
+      chatId,
+      { text: user.bio, mentions: [mention] },
+      { quoted: msg }
+    );
   } catch (err) {
     console.error("Error cekBio:", err);
   }
 };
 
-// Fungsi untuk melihat profile lengkap sendiri
+/* =======================
+   MY PROFILE
+======================= */
 export const myProfile = async (sock, chatId, msg) => {
   try {
-    const userId = msg.key.remoteJid.endsWith("@s.whatsapp.net")
-      ? msg.key.remoteJid
-      : msg.key.participant || msg.key.remoteJid;
+    const userId = getUserId(msg);
     const data = getUserData(db);
-    const userEntry = data.find((user) => user.userId === userId);
+    const user = data.find((u) => u.userId === userId);
 
-    const hasPP = userEntry && userEntry.profilPath && fs.existsSync(userEntry.profilPath);
-    const hasBio = userEntry && userEntry.bio;
-    const msgT = `buff:${userEntry?.idBuff || "Belum diatur"}\n${hasBio ? userEntry.bio : ""}`
-
-    // Jika ada PP, kirim gambar dengan bio sebagai caption
-    if (hasPP) {
-      const ppBuffer = fs.readFileSync(userEntry.profilPath);
-      await sock.sendMessage(chatId, {
-        image: ppBuffer,
-        caption: msgT
-      }, { quoted: msg });
-    } else {
-      // Jika tidak ada PP, kirim bio atau panduan
-      const textMessage = hasBio ? userEntry.bio : "Bio belum diatur.\n\nGunakan: !setbio <deskripsi Anda>";
-      await sock.sendMessage(chatId, {
-        text: textMessage
-      }, { quoted: msg });
+    if (!user) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Profil belum dibuat." },
+        { quoted: msg }
+      );
     }
 
+    const caption = `buff: ${user.idBuff || "Belum diatur"}\n${user.bio || ""}`;
+
+    if (user.profilPath && fs.existsSync(user.profilPath)) {
+      return sock.sendMessage(
+        chatId,
+        {
+          image: fs.readFileSync(user.profilPath),
+          caption,
+        },
+        { quoted: msg }
+      );
+    }
+
+    sock.sendMessage(
+      chatId,
+      { text: caption || "Profil kosong." },
+      { quoted: msg }
+    );
   } catch (err) {
     console.error("Error myProfile:", err);
   }
 };
 
-// Fungsi untuk cek profile user lain dengan mention
+/* =======================
+   CEK PROFILE ORANG
+======================= */
 export const cekProfile = async (sock, chatId, msg) => {
   try {
-    // Ambil mentioned user dari pesan
-    const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+    const mention =
+      msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
 
-    if (!mentionedJid || mentionedJid.length === 0) {
-      await sock.sendMessage(chatId, {
-        text: "Silakan mention user yang ingin dicek profil-nya.\n\nContoh: !cekprofile @6281234567890"
-      }, { quoted: msg });
-      return;
+    if (!mention) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Mention user.\nContoh: !cekprofile @628xxxx" },
+        { quoted: msg }
+      );
     }
 
-    const targetUserId = mentionedJid[0];
     const data = getUserData(db);
-    const userEntry = data.find((user) => user.userId === targetUserId);
+    const user = data.find((u) => u.userId === mention);
 
-    const hasPP = userEntry && userEntry.profilPath && fs.existsSync(userEntry.profilPath);
-    const hasBio = userEntry && userEntry.bio;
-    const msgT = `buff:${userEntry?.idBuff || "Belum diatur"}\n${hasBio ? userEntry.bio : ""}`
-    // Jika ada PP, kirim gambar dengan bio sebagai caption
-    if (hasPP) {
-      const ppBuffer = fs.readFileSync(userEntry.profilPath);
-      await sock.sendMessage(chatId, {
-        image: ppBuffer,
-        caption: msgT,
-        mentions: [targetUserId]
-      }, { quoted: msg });
-    } else {
-      // Jika tidak ada PP, kirim bio atau info belum diatur
-      const textMessage = hasBio ? userEntry.bio : "User ini belum mengatur bio.";
-      await sock.sendMessage(chatId, {
-        text: textMessage,
-        mentions: [targetUserId]
-      }, { quoted: msg });
+    if (!user) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Profil tidak ditemukan." },
+        { quoted: msg }
+      );
     }
 
+    const caption = `buff: ${user.idBuff || "Belum diatur"}\n${user.bio || ""}`;
+
+    if (user.profilPath && fs.existsSync(user.profilPath)) {
+      return sock.sendMessage(
+        chatId,
+        {
+          image: fs.readFileSync(user.profilPath),
+          caption,
+          mentions: [mention],
+        },
+        { quoted: msg }
+      );
+    }
+
+    sock.sendMessage(
+      chatId,
+      { text: caption, mentions: [mention] },
+      { quoted: msg }
+    );
   } catch (err) {
     console.error("Error cekProfile:", err);
-  };
-}
-
-export const setidBuff = (sock, chatId, msg, arg) => {
-  try {
-    if (!arg) return sock.sendMessage(chatId, { text: "masukan nama buff serta code setelah .setbuff" }, { quoted: msg })
-    const data = getUserData(db);
-    const userId = msg.key.remoteJid.endsWith("@s.whatsapp.net")
-      ? msg.key.remoteJid
-      : msg.key.participant || msg.key.remoteJid;
-    let dataentry = data.find((s) => s.userId === userId)
-    if (!dataentry) return sock.sendMessage(chatId, { text: "buat terlebih  dahulu desc dengan .desc agar terdaftar di database" }, { quoted: msg })
-    dataentry.idBuff = arg.trim()
-    saveUserData(db, data);
-    sock.sendMessage(chatId, { text: "code buff berhasil di tambahkan" }, { quoted: msg });
-  } catch (err) {
   }
-}
+};
 
+/* =======================
+   SET BUFF
+======================= */
+export const setidBuff = async (sock, chatId, msg, arg) => {
+  try {
+    if (!arg?.trim()) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Masukkan code buff.\nContoh: !setbuff ATK+10%" },
+        { quoted: msg }
+      );
+    }
 
+    const userId = getUserId(msg);
+    const data = getUserData(db);
+    const user = data.find((u) => u.userId === userId);
 
+    if (!user) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Buat bio terlebih dahulu dengan !setdesc" },
+        { quoted: msg }
+      );
+    }
 
+    user.idBuff = arg.trim();
+    saveUserData(db, data);
 
-
-
-
-
-
-
-
+    sock.sendMessage(
+      chatId,
+      { text: "Buff berhasil disimpan." },
+      { quoted: msg }
+    );
+  } catch (err) {
+    console.error("Error setidBuff:", err);
+  }
+};
