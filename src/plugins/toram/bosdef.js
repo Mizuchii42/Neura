@@ -149,7 +149,8 @@ export const formatBossMessage = (data, searchQuery = null) => {
 // Fungsi untuk bot Baileys
 export const handleBossCommand = async (sock, msg, text) => {
   const jid = msg.key.remoteJid;
-  const args = text.replace("!bosdef", "");
+  const args = text.split("|");
+
 
   try {
     await sock.sendMessage(jid, {
@@ -157,7 +158,7 @@ export const handleBossCommand = async (sock, msg, text) => {
     });
 
     const data = await getBossData();
-    const searchQuery = args;
+    const searchQuery = args[1];
     const message = formatBossMessage(data, searchQuery || null);
 
     await sock.sendMessage(jid, { text: message });
