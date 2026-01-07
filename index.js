@@ -8,6 +8,7 @@ import { Admincontrols } from "./src/admin/controlAdmin.js";
 import dotenv from "dotenv";
 import { ownerControls } from "./src/admin/owner.js";
 import { cmdMenucontrol } from "./src/modul/cmdControls.js";
+import { checkMentionAfk, checkUnAfk } from "./src/plugins/sosial/afk.js";
 dotenv.config();
 const start = async () => {
   const { state, saveCreds } = await useMultiFileAuthState("./auth_save");
@@ -57,6 +58,8 @@ const start = async () => {
       const chatId = msg.key.remoteJid;
       const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
       if (!chatId?.endsWith("@g.us")) return;
+      checkMentionAfk(sock, chatId, msg)
+      checkUnAfk(sock, chatId, msg);
       Admincontrols(sock, chatId, msg, text);
       ownerControls(sock, chatId, msg, text);
       cmdMenucontrol(sock, chatId, msg, text);

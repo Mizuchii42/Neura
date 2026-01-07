@@ -2,6 +2,7 @@ import { hidetag } from "../admin/hidetag.js";
 import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
 import sticker from "../plugins/fitur/stiker.js";
+import { setAfk } from "../plugins/sosial/afk.js";
 import { cekProfile, myBio, myProfile, setDesc, setPP } from "../plugins/sosial/bio.js";
 import { getNews, setNews } from "../plugins/sosial/news.js";
 import { getRules, setrules } from "../plugins/sosial/rules.js";
@@ -134,6 +135,10 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
   if (text.startsWith("!rules")) {
     if (isBan(sock, chatId, msg)) return;
     getRules(sock, chatId, msg)
+  }
+  if (text.startsWith("!afk")) {
+    if (isBan(sock, chatId, msg)) return;
+    setAfk(sock, chatId, msg, text);
   }
 
 
