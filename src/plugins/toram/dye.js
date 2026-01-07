@@ -105,7 +105,7 @@ export const dyePredictor = async (sock, chatId, msg, text) => {
       { quoted: msg }
     );
 
-    const imgPath = await screenshotTanakaTable(month);
+    const imgPath = await screenshotFullTable(month);
     const buffer = fs.readFileSync(imgPath);
 
     await sock.sendMessage(
