@@ -7,49 +7,94 @@ export const screenshotFullTable = async (month = "202601") => {
   const outputDir = path.resolve("temp");
   const filePath = path.join(outputDir, `dye_${month}.png`);
 
+  // Buat direktori jika belum ada
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
+    });
 
-  const page = await browser.newPage();
-  await page.goto(url, { waitUntil: "networkidle2" });
+    const page = await browser.newPage();
 
-  await page.waitForSelector("table");
+    // Set timeout lebih lama jika diperlukan
+    await page.goto(url, {
+      waitUntil: "networkidle2",
+      timeout: 30000
+    });
 
-  // 👉 Ambil ukuran tabel
-  const tableInfo = await page.evaluate(() => {
-    const table = document.querySelector("table");
-    const rect = table.getBoundingClientRect();
-    return {
-      width: Math.ceil(rect.width),
-      height: Math.ceil(rect.height),
-    };
-  });
+    // Tunggu tabel muncul dengan timeout
+    await page.waitForSelector("table", { timeout: 10000 });
 
-  // 👉 Set viewport sesuai tinggi tabel
-  await page.setViewport({
-    width: Math.max(1200, tableInfo.width),
-    height: tableInfo.height,
-  });
+    // Tunggu sebentar untuk memastikan rendering selesai
+    await page.waitForTimeout(1000);
 
-  const table = await page.$("table");
+    // Ambil ukuran tabel
+    const tableInfo = await page.evaluate(() => {
+      const table = document.querySelector("table");
+      if (!table) return null;
 
-  await table.screenshot({
-    path: filePath,
-  });
+      const rect = table.getBoundingClientRect();
+      return {
+        width: Math.ceil(rect.width),
+        height: Math.ceil(rect.height),
+        x: Math.floor(rect.x),
+        y: Math.floor(rect.y),
+      };
+    });
 
-  await browser.close();
-  return filePath;
+    if (!tableInfo) {
+      throw new Error("Tabel tidak ditemukan di halaman");
+    }
+
+    // Set viewport dengan ukuran yang cukup
+    await page.setViewport({
+      width: Math.max(1200, tableInfo.width + 100),
+      height: Math.max(800, tableInfo.height + 100),
+      deviceScaleFactor: 2, // Untuk kualitas lebih tinggi
+    });
+
+    // Tunggu sebentar setelah resize
+    await page.waitForTimeout(500);
+
+    // Screenshot tabel
+    const table = await page.$("table");
+    if (!table) {
+      throw new Error("Elemen tabel tidak dapat ditemukan");
+    }
+
+    await table.screenshot({
+      path: filePath,
+      type: "png",
+    });
+
+    console.log(`Screenshot berhasil disimpan di: ${filePath}`);
+    return filePath;
+
+  } catch (error) {
+    console.error("Error saat screenshot:", error.message);
+    throw error;
+  } finally {
+    // Pastikan browser selalu ditutup
+    if (browser) {
+      await browser.close();
+    }
+  }
 };
+
+
+
+
+
 export const dyePredictor = async (sock, chatId, msg, text) => {
   try {
     const month = text?.split(" ")[1] || "202601";
