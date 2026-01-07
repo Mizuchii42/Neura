@@ -8,9 +8,8 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const screenshotFullTable = async (month = "202601") => {
   const url = `https://tanaka0.work/AIO/en/DyePredictor/ColorWeapon?month=${month}`;
   const outputDir = path.resolve("temp");
-  const filePath = path.join(outputDir, `dye_${month}.png`);
+  const filePath = path.join(outputDir, `dye_${month}_full.png`);
 
-  // Buat direktori jika belum ada
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
@@ -29,71 +28,126 @@ export const screenshotFullTable = async (month = "202601") => {
 
     const page = await browser.newPage();
 
-    // Set timeout lebih lama jika diperlukan
     await page.goto(url, {
       waitUntil: "networkidle2",
       timeout: 30000
     });
 
-    // Tunggu tabel muncul dengan timeout
+    // Tunggu tabel muncul
     await page.waitForSelector("table", { timeout: 10000 });
+    await delay(1500);
 
-    // Tunggu sebentar untuk memastikan rendering selesai
-    await delay(1000);
+    // Cari container yang berisi semua tabel atau body
+    const containerInfo = await page.evaluate(() => {
+      const tables = document.querySelectorAll("table");
 
-    // Ambil ukuran tabel
-    const tableInfo = await page.evaluate(() => {
-      const table = document.querySelector("table");
-      if (!table) return null;
+      if (tables.length === 0) return null;
 
-      const rect = table.getBoundingClientRect();
+      // Coba cari parent container yang berisi semua tabel
+      let container = tables[0].parentElement;
+
+      // Cek apakah semua tabel ada dalam container ini
+      while (container && container !== document.body) {
+        const tablesInContainer = container.querySelectorAll("table");
+        if (tablesInContainer.length === tables.length) {
+          break;
+        }
+        container = container.parentElement;
+      }
+
+      // Jika tidak ada container yang pas, gunakan body
+      if (!container || container === document.body) {
+        // Hitung dari tabel pertama sampai terakhir
+        const firstTable = tables[0];
+        const lastTable = tables[tables.length - 1];
+
+        const firstRect = firstTable.getBoundingClientRect();
+        const lastRect = lastTable.getBoundingClientRect();
+
+        return {
+          x: Math.floor(Math.min(firstRect.x, lastRect.x)),
+          y: Math.floor(firstRect.y),
+          width: Math.ceil(Math.max(firstRect.width, lastRect.width)),
+          height: Math.ceil((lastRect.bottom - firstRect.top)),
+          tableCount: tables.length,
+          useClip: true
+        };
+      }
+
+      const rect = container.getBoundingClientRect();
       return {
-        width: Math.ceil(rect.width),
-        height: Math.ceil(rect.height),
         x: Math.floor(rect.x),
         y: Math.floor(rect.y),
+        width: Math.ceil(rect.width),
+        height: Math.ceil(rect.height),
+        tableCount: tables.length,
+        useClip: false,
+        element: container.tagName
       };
     });
 
-    if (!tableInfo) {
+    if (!containerInfo) {
       throw new Error("Tabel tidak ditemukan di halaman");
     }
 
-    // Set viewport dengan ukuran yang cukup
+    console.log(`Ditemukan ${containerInfo.tableCount} tabel`);
+    console.log(`Ukuran area: ${containerInfo.width}x${containerInfo.height}px`);
+
+    // Set viewport dengan ukuran yang cukup besar
     await page.setViewport({
-      width: Math.max(1200, tableInfo.width + 100),
-      height: Math.max(800, tableInfo.height + 100),
-      deviceScaleFactor: 2, // Untuk kualitas lebih tinggi
+      width: Math.max(1400, containerInfo.width + 100),
+      height: Math.max(1000, containerInfo.height + 200),
+      deviceScaleFactor: 1, // Gunakan 1 untuk file size lebih kecil, 2 untuk quality lebih tinggi
     });
 
-    // Tunggu sebentar setelah resize
-    await delay(500);
+    await delay(1000);
 
-    // Screenshot tabel
-    const table = await page.$("table");
-    if (!table) {
-      throw new Error("Elemen tabel tidak dapat ditemukan");
+    if (containerInfo.useClip) {
+      // Screenshot dengan clip untuk area spesifik
+      await page.screenshot({
+        path: filePath,
+        type: "png",
+        clip: {
+          x: Math.max(0, containerInfo.x - 10),
+          y: Math.max(0, containerInfo.y - 10),
+          width: containerInfo.width + 20,
+          height: containerInfo.height + 20,
+        }
+      });
+    } else {
+      // Screenshot container element
+      const container = await page.evaluateHandle(() => {
+        const tables = document.querySelectorAll("table");
+        let container = tables[0].parentElement;
+
+        while (container && container !== document.body) {
+          const tablesInContainer = container.querySelectorAll("table");
+          if (tablesInContainer.length === tables.length) {
+            return container;
+          }
+          container = container.parentElement;
+        }
+        return document.body;
+      });
+
+      await container.screenshot({
+        path: filePath,
+        type: "png",
+      });
     }
 
-    await table.screenshot({
-      path: filePath,
-      type: "png",
-    });
-
-    console.log(`Screenshot berhasil disimpan di: ${filePath}`);
+    console.log(`✓ Screenshot FULL (${containerInfo.tableCount} tabel) berhasil disimpan di: ${filePath}`);
     return filePath;
 
   } catch (error) {
     console.error("Error saat screenshot:", error.message);
     throw error;
   } finally {
-    // Pastikan browser selalu ditutup
     if (browser) {
       await browser.close();
     }
   }
 };
-
 
 
 

@@ -34,7 +34,7 @@ export const menuMessage = `
 - !buff
 - !lv 
 - !bos
-
+- !dye
 *Cmd Tools*
 - !stiker <replay foto>
 
