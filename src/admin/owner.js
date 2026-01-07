@@ -7,7 +7,7 @@ export const ownerControls = async (sock, chatId, msg, text) => {
 
   }
   if (text.startsWith("!unban")) {
-    if (isOwner(sock, msg, chatId)) return;
+    if (!isOwner(sock, msg, chatId)) return;
     unBan(sock, chatId, msg);
   }
 }
