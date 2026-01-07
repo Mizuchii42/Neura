@@ -1,7 +1,7 @@
 
 import path from "path";
 import fs from "fs";
-import { getUserData, saveUserData } from "../../config/connect.js";
+import { getUserData, saveUserData } from "../../config/func.js";
 import { downloadMediaMessage } from "@whiskeysockets/baileys";
 import { errMessage } from "../../global/variabel.js";
 
