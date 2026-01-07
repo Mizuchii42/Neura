@@ -110,10 +110,10 @@ export const searchRegist = async (sock, chatId, msg, text) => {
 *SEARCH REGIST*
 > By Neura Bot
 ${data.map((rg, i) => `
-   ${rg.name}
-   Effect         : ${rg.effect}
-   Max Level      : ${rg.max_lv}
-   Levels Studied : ${rg.levels_studied}
+${rg.name}
+Effect         : ${rg.effect}
+Max Level      : ${rg.max_lv}
+Levels Studied : ${rg.levels_studied}
 `).join("\n")}
 `.trim();
 
@@ -173,10 +173,10 @@ export const searchAbility = async (sock, chatId, msg, text) => {
 *SEARCH ABILITY*
 > By Neura Bot
 ${data.map((ab, i) => `
-   ${ab.name}
-   Tier        : ${ab.tier}
-   Stat Effect : ${ab.stat_effect}
-   Stat ID     : ${ab.stat_id}
+${ab.name}
+Tier        : ${ab.tier}
+Stat Effect : ${ab.stat_effect}
+Stat ID     : ${ab.stat_id}
 `).join("\n")}
 `.trim();
 
@@ -239,10 +239,10 @@ export const searchItem = async (sock, chatId, msg, text) => {
 > By Neura Bot
 ${data.map((item, i) => `
   ${item.nama}
-  Jenis : ${item.jenis}
-  Stat  :
+Jenis : ${item.jenis}
+Stat  :
 ${formatStatList(item.stat)}
-  Drop  : ${item.drop}
+Drop  : ${item.drop}
 `).join("\n")}
 `.trim();
 
