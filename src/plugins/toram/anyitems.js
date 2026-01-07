@@ -210,6 +210,7 @@ export const searchItem = async (sock, chatId, msg, text) => {
         { quoted: msg }
       );
     }
+    if (namaItem.length > 3) return sock.sendMessage(chatId, { text: "masukan 3 huruf awal" }, { quoted: msg })
 
     const { data, error } = await supabase
       .from("item")
