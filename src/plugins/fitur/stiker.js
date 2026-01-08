@@ -27,7 +27,7 @@ const sticker = async (sock, msg, chatId) => {
     if (!mediaMsg) {
       return sock.sendMessage(
         chatId,
-        { text: "❌ Kirim atau reply gambar dengan caption `!stiker`" },
+        { text: "Kirim atau reply gambar dengan caption `!stiker`" },
         { quoted: msg }
       )
     }
@@ -42,7 +42,7 @@ const sticker = async (sock, msg, chatId) => {
     if (!buffer || buffer.length > MAX_FILE_SIZE) {
       return sock.sendMessage(
         chatId,
-        { text: "❌ Ukuran file terlalu besar (maks 10MB)." },
+        { text: "Ukuran file terlalu besar (maks 10MB)." },
         { quoted: msg }
       )
     }
@@ -72,6 +72,8 @@ const sticker = async (sock, msg, chatId) => {
     )
   }
 }
+
+
 
 export default sticker
 

@@ -5,6 +5,7 @@ import sticker from "../plugins/fitur/stiker.js";
 import { setAfk } from "../plugins/sosial/afk.js";
 import { cekProfile, myBio, myProfile, setDesc, setPP } from "../plugins/sosial/bio.js";
 import { getNews, setNews } from "../plugins/sosial/news.js";
+import { qc } from "../plugins/sosial/qc.js";
 import { getRules, setrules } from "../plugins/sosial/rules.js";
 import { searchAbility, searchApp, searchItem, searchRegist, searchXtall } from "../plugins/toram/anyitems.js";
 import Bossdef from "../plugins/toram/bossdef.js";
@@ -145,8 +146,9 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     dyePredictor(sock, chatId, msg, text);
   }
-  if (text.startsWith("!wctest")) {
+  if (text.startsWith("!qc")) {
     if (isBan(sock, chatId, msg)) return;
+    qc(sock, chatId, msg, text);
   }
 
 
