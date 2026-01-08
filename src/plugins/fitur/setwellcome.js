@@ -3,8 +3,16 @@ import { generateWelcomeImage } from "../../config/generate.js"
 
 const ppCache = new Map()
 
-// ambil nama user SUPER CEPAT
-const getUserNameFast = (sock, jid) => {
+const normalizeJid = (user) => {
+  if (typeof user === "string") return user
+  if (typeof user === "object" && user?.id) return user.id
+  return null
+}
+
+const getUserNameFast = (sock, user) => {
+  const jid = normalizeJid(user)
+  if (!jid) return "User"
+
   return (
     sock.contacts?.[jid]?.notify ||
     sock.contacts?.[jid]?.name ||
@@ -12,8 +20,10 @@ const getUserNameFast = (sock, jid) => {
   )
 }
 
-// ambil PP pakai cache (anti lemot)
-const getProfilePictureFast = async (sock, jid) => {
+const getProfilePictureFast = async (sock, user) => {
+  const jid = normalizeJid(user)
+  if (!jid) return "https://i.imgur.com/6VBx3io.png"
+
   if (ppCache.has(jid)) return ppCache.get(jid)
 
   try {
@@ -30,9 +40,13 @@ export const welcomeGroup = async (sock, update) => {
     const { id, participants, action } = update
     if (action !== "add") return
 
-    const groupName = sock.groupMetadataCache?.[id]?.subject || "Group"
+    const groupName =
+      sock.groupMetadataCache?.[id]?.subject || "Group"
 
     for (const user of participants) {
+      const jid = normalizeJid(user)
+      if (!jid) continue
+
       const userName = getUserNameFast(sock, user)
       const ppUrl = await getProfilePictureFast(sock, user)
 
@@ -44,8 +58,8 @@ export const welcomeGroup = async (sock, update) => {
 
       await sock.sendMessage(id, {
         image,
-        caption: `Selamat datang @${user.split("@")[0]}`,
-        mentions: [user]
+        caption: `Selamat datang @${jid.split("@")[0]}`,
+        mentions: [jid]
       })
     }
   } catch (err) {
