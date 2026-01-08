@@ -35,19 +35,19 @@ const getProfilePictureFast = async (sock, user) => {
   }
 }
 
-export const welcomeGroup = async (sock, update, msg) => {
+export const welcomeGroup = async (sock, update) => {
   try {
     const { id, participants, action } = update
     if (action !== "add") return
 
-    const groupName =
-      sock.groupMetadataCache?.[id]?.subject || "Group"
+    // ⚠️ AMAN: jangan bergantung ke groupMetadata
+    const groupName = "Group"
 
     for (const user of participants) {
       const jid = normalizeJid(user)
       if (!jid) continue
 
-      const userName = msg.pushName;
+      const userName = getUserNameFast(sock, user)
       const ppUrl = await getProfilePictureFast(sock, user)
 
       const image = await generateWelcomeImage(
@@ -65,9 +65,7 @@ export const welcomeGroup = async (sock, update, msg) => {
   } catch (err) {
     console.error("WELCOME ERROR:", err)
   }
-}
-
-export const testWelcomeCmd = async (sock, chatId, msg, text) => {
+}export const testWelcomeCmd = async (sock, chatId, msg, text) => {
   try {
     if (text !== "!wctest") return
     //if (!chatId.endsWith("@g.us")) return
