@@ -40,8 +40,8 @@ export const welcomeGroup = async (sock, update) => {
     const { id, participants, action } = update
     if (action !== "add") return
 
-    // ⚠️ AMAN: jangan bergantung ke groupMetadata
-    const groupName = "Group"
+    const groupName =
+      sock.groupMetadataCache?.[id]?.subject || "Group"
 
     for (const user of participants) {
       const jid = normalizeJid(user)
@@ -65,7 +65,6 @@ export const welcomeGroup = async (sock, update) => {
   } catch (err) {
     console.error("WELCOME ERROR:", err)
   }
-
 }
 export const testWelcomeCmd = async (sock, chatId, msg, text) => {
   try {
