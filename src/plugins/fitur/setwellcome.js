@@ -1,24 +1,12 @@
 import { generateWelcomeImage } from "../../config/generate.js"
 
-
 const ppCache = new Map()
 const nameCache = new Map()
 
 /* =======================
-   HELPER
+   GET USER NAME (FIXED)
 ======================= */
-
-const normalizeJid = (user) => {
-  if (typeof user === "string") return user
-  if (typeof user === "object" && user?.id) return user.id
-  return null
-}
-
-/* =======================
-   GET USER NAME (PALING AKURAT)
-======================= */
-
-const getUserNameFromGroup = async (sock, groupId, jid) => {
+const getUserName = async (sock, groupId, jid) => {
   if (nameCache.has(jid)) return nameCache.get(jid)
 
   try {
@@ -26,10 +14,10 @@ const getUserNameFromGroup = async (sock, groupId, jid) => {
     const user = meta.participants.find(p => p.id === jid)
 
     const name =
-      user?.notify ||
-      user?.name ||
-      sock.contacts?.[jid]?.notify ||
-      sock.contacts?.[jid]?.name ||
+      user?.notify?.trim() ||
+      user?.verifiedName?.trim() ||
+      sock.contacts?.[jid]?.notify?.trim() ||
+      sock.contacts?.[jid]?.name?.trim() ||
       jid.split("@")[0]
 
     nameCache.set(jid, name)
@@ -40,12 +28,9 @@ const getUserNameFromGroup = async (sock, groupId, jid) => {
 }
 
 /* =======================
-   GET PROFILE PICTURE (FAST + CACHE)
+   GET PROFILE PICTURE
 ======================= */
-
-const getProfilePictureFast = async (sock, jid) => {
-  if (!jid) return "https://i.imgur.com/6VBx3io.png"
-
+const getProfilePicture = async (sock, jid) => {
   if (ppCache.has(jid)) return ppCache.get(jid)
 
   try {
@@ -53,14 +38,15 @@ const getProfilePictureFast = async (sock, jid) => {
     ppCache.set(jid, url)
     return url
   } catch {
-    return "https://i.imgur.com/6VBx3io.png"
+    const defaultPP = "https://i.imgur.com/6VBx3io.png"
+    ppCache.set(jid, defaultPP)
+    return defaultPP
   }
 }
 
 /* =======================
    WELCOME HANDLER
 ======================= */
-
 export const welcomeGroup = async (sock, update) => {
   try {
     const { id, participants, action } = update
@@ -70,55 +56,21 @@ export const welcomeGroup = async (sock, update) => {
     const groupName = meta.subject || "Group"
 
     for (const jid of participants) {
-      const userName = await getUserNameFromGroup(sock, id, jid)
-      const ppUrl = await getProfilePictureFast(sock, jid)
+      try {
+        const userName = await getUserName(sock, id, jid)
+        const ppUrl = await getProfilePicture(sock, jid)
+        const image = await generateWelcomeImage(ppUrl, userName, groupName)
 
-      const image = await generateWelcomeImage(
-        ppUrl,
-        userName,
-        groupName
-      )
-
-      await sock.sendMessage(id, {
-        image,
-        caption: `Selamat datang @${jid.split("@")[0]}`,
-        mentions: [jid]
-      })
+        await sock.sendMessage(id, {
+          image: image,
+          caption: `Welcome *${userName}* to *${groupName}*! 🎉`,
+          mentions: [jid]
+        })
+      } catch (error) {
+        console.error(`Welcome failed for ${jid}:`, error)
+      }
     }
-  } catch (err) {
-    console.error("WELCOME ERROR:", err)
-  }
-}
-export const testWelcomeCmd = async (sock, chatId, msg, text) => {
-  try {
-    if (text !== "!wctest") return
-    //if (!chatId.endsWith("@g.us")) return
-
-    const user = msg.key.participant || msg.key.remoteJid
-    const userName =
-      msg.pushName ||
-      sock.contacts?.[user]?.notify ||
-      user.split("@")[0]
-
-    const groupName =
-      sock.groupMetadataCache?.[chatId]?.subject || "Group"
-
-    let ppUrl
-    try {
-      ppUrl = await sock.profilePictureUrl(user, "image")
-    } catch {
-      ppUrl = "https://i.imgur.com/6VBx3io.png"
-    }
-
-    const image = await generateWelcomeImage(ppUrl, userName, groupName)
-
-    await sock.sendMessage(chatId, {
-      image,
-      caption: "TEST WELCOME IMAGE",
-      mentions: [user]
-    }, { quoted: msg })
-
-  } catch (err) {
-    console.error("TEST WELCOME ERROR:", err)
+  } catch (error) {
+    console.error("Welcome handler error:", error)
   }
 }

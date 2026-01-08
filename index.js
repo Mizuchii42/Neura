@@ -14,7 +14,6 @@ dotenv.config();
 const start = async () => {
   const { state, saveCreds } = await useMultiFileAuthState("./auth_save");
   const { version } = await fetchLatestBaileysVersion();
-
   const sock = makeWASocket({
     version,
     auth: state,
