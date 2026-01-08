@@ -2,6 +2,11 @@ import { generateWelcomeImage } from "../../config/generate.js"
 
 
 const ppCache = new Map()
+const nameCache = new Map()
+
+/* =======================
+   HELPER
+======================= */
 
 const normalizeJid = (user) => {
   if (typeof user === "string") return user
@@ -9,19 +14,36 @@ const normalizeJid = (user) => {
   return null
 }
 
-const getUserNameFast = async (sock, user) => {
-  const jid = normalizeJid(user)
-  if (!jid) return "User"
+/* =======================
+   GET USER NAME (PALING AKURAT)
+======================= */
+
+const getUserNameFromGroup = async (sock, groupId, jid) => {
+  if (nameCache.has(jid)) return nameCache.get(jid)
 
   try {
-    return await sock.getName(jid)
+    const meta = await sock.groupMetadata(groupId)
+    const user = meta.participants.find(p => p.id === jid)
+
+    const name =
+      user?.notify ||
+      user?.name ||
+      sock.contacts?.[jid]?.notify ||
+      sock.contacts?.[jid]?.name ||
+      jid.split("@")[0]
+
+    nameCache.set(jid, name)
+    return name
   } catch {
     return jid.split("@")[0]
   }
 }
 
-const getProfilePictureFast = async (sock, user) => {
-  const jid = normalizeJid(user)
+/* =======================
+   GET PROFILE PICTURE (FAST + CACHE)
+======================= */
+
+const getProfilePictureFast = async (sock, jid) => {
   if (!jid) return "https://i.imgur.com/6VBx3io.png"
 
   if (ppCache.has(jid)) return ppCache.get(jid)
@@ -35,20 +57,21 @@ const getProfilePictureFast = async (sock, user) => {
   }
 }
 
+/* =======================
+   WELCOME HANDLER
+======================= */
+
 export const welcomeGroup = async (sock, update) => {
   try {
     const { id, participants, action } = update
     if (action !== "add") return
 
-    const groupName =
-      sock.groupMetadataCache?.[id]?.subject || "Group"
+    const meta = await sock.groupMetadata(id)
+    const groupName = meta.subject || "Group"
 
-    for (const user of participants) {
-      const jid = normalizeJid(user)
-      if (!jid) continue
-
-      const userName = await getUserNameFast(sock, user)
-      const ppUrl = await getProfilePictureFast(sock, user)
+    for (const jid of participants) {
+      const userName = await getUserNameFromGroup(sock, id, jid)
+      const ppUrl = await getProfilePictureFast(sock, jid)
 
       const image = await generateWelcomeImage(
         ppUrl,
