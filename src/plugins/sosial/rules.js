@@ -7,12 +7,12 @@ const db = path.resolve("database", "rules.json");
 export const setrules = async (sock, chatId, msg, text) => {
   try {
     adminValid(sock, chatId, msg, text);
-    const newsText = text.replace("!setRules", "").trim();
+    const newsText = text.replace("!seteules", "").trim();
 
     if (!newsText) {
       return sock.sendMessage(
         chatId,
-        { text: "Format salah\n> gunakan !setRules <isi berita>" },
+        { text: "Format salah\n> gunakan !seteules <isi berita>" },
         { quoted: msg }
       );
     }

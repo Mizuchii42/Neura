@@ -45,7 +45,7 @@ const Smeme = async (sock, chatId, msg, text) => {
     if (!mediaMsg) {
       return sock.sendMessage(
         chatId,
-        { text: "❌ Kirim atau reply gambar dengan `!smeme atas|bawah`" },
+        { text: "reply gambar dengan `!smeme atas|bawah`" },
         { quoted: msg }
       )
     }

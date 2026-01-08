@@ -7,12 +7,12 @@ const db = path.resolve("database", "news.json");
 export const setNews = async (sock, chatId, msg, text) => {
   try {
     adminValid(sock, chatId, msg, text);
-    const newsText = text.replace("!setNews", "").trim();
+    const newsText = text.replace("!setnews", "").trim();
 
     if (!newsText) {
       return sock.sendMessage(
         chatId,
-        { text: "Format salah\n> gunakan !setNews <isi berita>" },
+        { text: "Format salah\n> gunakan !setnews <isi berita>" },
         { quoted: msg }
       );
     }
