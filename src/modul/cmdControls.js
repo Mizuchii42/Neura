@@ -1,6 +1,7 @@
 import { hidetag } from "../admin/hidetag.js";
 import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
+import { testWelcomeCmd } from "../plugins/fitur/setwellcome.js";
 import sticker from "../plugins/fitur/stiker.js";
 import { setAfk } from "../plugins/sosial/afk.js";
 import { cekProfile, myBio, myProfile, setDesc, setPP } from "../plugins/sosial/bio.js";
@@ -145,7 +146,10 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     dyePredictor(sock, chatId, msg, text);
   }
-
+  if (text.startsWith("!wctest")) {
+    if (isBan(sock, chatId, msg)) return;
+    testWelcomeCmd(sock, chatId, msg, text);
+  }
 
 
 
