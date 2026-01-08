@@ -6,6 +6,10 @@ dotenv.config()
 /* =====================
    HELPER
 ===================== */
+const STICKER_SIZE = 512
+const WEBP_QUALITY = 80
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
 
 const getMediaMessage = (msg) => {
   // gambar langsung
@@ -81,10 +85,17 @@ const Smeme = async (sock, chatId, msg, text) => {
     // =====================
     // SEND RESULT
     // =====================
+    const webpBuffer = await sharp(memeUrl)
+      .resize(STICKER_SIZE, STICKER_SIZE, {
+        fit: "contain",
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      })
+      .webp({ quality: WEBP_QUALITY })
+      .toBuffer()
 
     await sock.sendMessage(
       chatId,
-      { image: { url: memeUrl }, caption: "🖼️ Meme berhasil dibuat" },
+      { sticker: webpBuffer },
       { quoted: msg }
     )
 
