@@ -36,7 +36,7 @@ export const generateWelcomeImage = async (ppUrl, userName, groupName) => {
   // text
   ctx.fillStyle = "#000000"
   ctx.font = "bold 34px Sans"
-  ctx.fillText("Hai", 240, 120)
+  ctx.fillText("Hai", 200, 100)
 
   ctx.font = "28px Sans"
   ctx.fillText(userName, 240, 165)
