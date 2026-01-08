@@ -2,21 +2,23 @@ import { createCanvas, loadImage } from "canvas"
 import axios from "axios"
 
 export const generateWelcomeImage = async (ppUrl, userName, groupName) => {
-  const width = 800
-  const height = 200
+  const WIDTH = 800
+  const HEIGHT = 300
 
-  const canvas = createCanvas(width, height)
+  const canvas = createCanvas(WIDTH, HEIGHT)
   const ctx = canvas.getContext("2d")
 
-  // background
-  ctx.fillStyle = "#fff"
-  ctx.fillRect(0, 0, width, height)
+  /* ================= BACKGROUND ================= */
+
+  ctx.fillStyle = "#ffffff"
+  ctx.fillRect(0, 0, WIDTH, HEIGHT)
 
   // card
   ctx.fillStyle = "#e5e7eb"
-  ctx.fillRect(20, 20, width - 40, height - 40)
+  ctx.fillRect(20, 20, WIDTH - 40, HEIGHT - 40)
 
-  // load avatar
+  /* ================= AVATAR ================= */
+
   let avatar
   try {
     const res = await axios.get(ppUrl, { responseType: "arraybuffer" })
@@ -25,29 +27,43 @@ export const generateWelcomeImage = async (ppUrl, userName, groupName) => {
     avatar = await loadImage("https://i.imgur.com/6VBx3io.png")
   }
 
-  // avatar circle
+  const AVATAR_X = 100
+  const AVATAR_Y = HEIGHT / 2
+  const AVATAR_RADIUS = 60
+
   ctx.save()
   ctx.beginPath()
-  ctx.arc(100, 200, 70, 0, Math.PI * 2)
+  ctx.arc(AVATAR_X, AVATAR_Y, AVATAR_RADIUS, 0, Math.PI * 2)
+  ctx.closePath()
   ctx.clip()
-  ctx.drawImage(avatar, 50, 120, 140, 140)
+
+  ctx.drawImage(
+    avatar,
+    AVATAR_X - AVATAR_RADIUS,
+    AVATAR_Y - AVATAR_RADIUS,
+    AVATAR_RADIUS * 2,
+    AVATAR_RADIUS * 2
+  )
   ctx.restore()
 
-  // text
+  /* ================= TEXT ================= */
+
+  const TEXT_X = 200
+
   ctx.fillStyle = "#000000"
+
   ctx.font = "bold 34px Sans"
-  ctx.fillText("Hai", 200, 100)
+  ctx.fillText("Hai,", TEXT_X, 90)
 
   ctx.font = "28px Sans"
-  ctx.fillText(userName, 200, 155)
-
-  ctx.font = "18px Sans"
-  ctx.fillStyle = "#000000"
-  ctx.fillText(`to ${groupName}`, 200, 200)
+  ctx.fillText(userName, TEXT_X, 135)
 
   ctx.font = "20px Sans"
-  ctx.fillText("gunakan !menu untuk menggunakan Neura", 240, 245)
+  ctx.fillText(`Selamat datang di ${groupName}`, TEXT_X, 175)
+
+  ctx.font = "18px Sans"
+  ctx.fillStyle = "#374151"
+  ctx.fillText("Gunakan !menu untuk menggunakan Neura", TEXT_X, 215)
 
   return canvas.toBuffer()
 }
-
