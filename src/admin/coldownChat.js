@@ -20,7 +20,7 @@ const writeJSON = (file, data) => {
 }
 
 const getUserJid = (msg) => msg.key.participant || msg.key.remoteJid
-const getGroupJid = (chatId) => chatId.endsWith("@g.us") ? chatId : null
+const isGroup = (chatId) => chatId.endsWith("@g.us")
 
 /* =====================
    COOLDOWN USER
@@ -28,15 +28,16 @@ const getGroupJid = (chatId) => chatId.endsWith("@g.us") ? chatId : null
 
 export const ColdownUser = async (sock, chatId, msg, command) => {
   try {
-    const groupId = getGroupJid(chatId)
     const userJid = getUserJid(msg)
 
-    // 🔥 GRUP BEBAS COOLDOWN
-    const noCdGroups = readJSON(Nocoldown, [])
-    if (groupId && noCdGroups.includes(groupId)) return true
+    // 🔥 grup bebas cooldown
+    if (isGroup(chatId)) {
+      const noCdGroups = readJSON(Nocoldown, [])
+      if (noCdGroups.includes(chatId)) return true
+    }
 
-    const data = readJSON(Coldwonn, {})
-    const key = `${groupId || "private"}:${userJid}`
+    const data = readJSON(Coldwon, {})
+    const key = `${isGroup(chatId) ? chatId : "private"}:${userJid}`
     const now = Date.now()
 
     if (data[key] && now - data[key] < COOLDOWN_TIME) {
@@ -53,7 +54,7 @@ export const ColdownUser = async (sock, chatId, msg, command) => {
     }
 
     data[key] = now
-    writeJSON(Coldwonn, data)
+    writeJSON(Coldwon, data)
     return true
 
   } catch (err) {
@@ -68,10 +69,10 @@ export const ColdownUser = async (sock, chatId, msg, command) => {
 
 export const setNocoldown = async (sock, chatId, msg) => {
   try {
-    if (!chatId.endsWith("@g.us")) {
+    if (!isGroup(chatId)) {
       return sock.sendMessage(
         chatId,
-        { text: "❌ Perintah ini hanya untuk grup." },
+        { text: "❌ Perintah ini hanya bisa di grup." },
         { quoted: msg }
       )
     }
@@ -101,16 +102,14 @@ export const setNocoldown = async (sock, chatId, msg) => {
 }
 
 /* =====================
-   CEK COOLDOWN (OPTIONAL)
+   CEK COOLDOWN
 ===================== */
 
 export const CekColdown = async (sock, chatId, msg) => {
   try {
-    const groupId = getGroupJid(chatId)
     const userJid = getUserJid(msg)
-
-    const data = readJSON(Coldwonn, {})
-    const key = `${groupId || "private"}:${userJid}`
+    const data = readJSON(Coldwon, {})
+    const key = `${isGroup(chatId) ? chatId : "private"}:${userJid}`
 
     if (!data[key]) {
       return sock.sendMessage(
