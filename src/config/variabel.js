@@ -2,6 +2,7 @@ export const menuMessage = `
 *Neura Bot*\n> gunakan bot dengan bijak, dukung bot agar bisa hidup lebih lama dengan donet seiklasnya
 vps exp: 21 januari 2026
 donate: https://sociabuzz.com/neurabot/tribe
+grub: https://chat.whatsapp.com/IeRyRhLn7OA5lKSrJnBlVv
 
 *Cmd Admin*
 - !kick
