@@ -1,6 +1,7 @@
 import { hidetag } from "../admin/hidetag.js";
 import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
+import { setMenu } from "../plugins/fitur/img.js";
 import Smeme from "../plugins/fitur/smeme.js";
 import sticker from "../plugins/fitur/stiker.js";
 import { setAfk } from "../plugins/sosial/afk.js";
@@ -16,7 +17,7 @@ import { clearRaid, createRaid, joinRaid, leaveRaid, viewRaid } from "../plugins
 export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!menu")) {
     if (isBan(sock, chatId, msg)) return;
-    sock.sendMessage(chatId, { text: menuMessage }, { quoted: msg });
+    setMenu(sock, chatId, msg, text);
   }
   if (text.startsWith("!buff")) {
     if (isBan(sock, chatId, msg)) return;
