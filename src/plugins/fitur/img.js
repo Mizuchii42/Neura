@@ -3,7 +3,7 @@ import { menuMessage } from "../../config/variabel.js"
 
 export const setMenu = async (sock, chatId, msg, text) => {
   try {
-    if (text !== "!testwelcome") return
+    if (text !== "!menu") return
     if (!chatId.endsWith("@g.us")) return
 
     const user = msg.key.participant || msg.key.remoteJid
