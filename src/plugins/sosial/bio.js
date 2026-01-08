@@ -247,7 +247,7 @@ export const cekProfile = async (sock, chatId, msg) => {
     if (!mention) {
       return sock.sendMessage(
         chatId,
-        { text: "Mention user.\nContoh: !cekprofile @628xxxx" },
+        { text: "Mention user.\nContoh: !pofil @628xxxx" },
         { quoted: msg }
       );
     }
