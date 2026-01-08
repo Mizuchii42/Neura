@@ -3,7 +3,7 @@ import axios from "axios"
 
 export const generateWelcomeImage = async (ppUrl, userName, groupName) => {
   const width = 800
-  const height = 400
+  const height = 200
 
   const canvas = createCanvas(width, height)
   const ctx = canvas.getContext("2d")
@@ -36,17 +36,17 @@ export const generateWelcomeImage = async (ppUrl, userName, groupName) => {
   // text
   ctx.fillStyle = "#000000"
   ctx.font = "bold 34px Sans"
-  ctx.fillText("Halo", 240, 120)
+  ctx.fillText("Hai", 240, 120)
 
   ctx.font = "28px Sans"
   ctx.fillText(userName, 240, 165)
 
-  ctx.font = "22px Sans"
+  ctx.font = "18px Sans"
   ctx.fillStyle = "#000000"
   ctx.fillText(`to ${groupName}`, 240, 205)
 
-  ctx.font = "18px Sans"
-  ctx.fillText("Semoga betah dan patuhi rules grup", 240, 245)
+  ctx.font = "20px Sans"
+  ctx.fillText("gunakan !menu untuk menggunakan Neura", 240, 245)
 
   return canvas.toBuffer()
 }
