@@ -57,7 +57,7 @@ const start = async () => {
     try {
       const chatId = msg.key.remoteJid;
       const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
-      if (!chatId?.endsWith("@g.us")) return;
+      if (!chatId?.endsWith("@g.us")) return sock.sendMessage(chatId, { text: "grub only, join official grub Neura: https://chat.whatsapp.com/IeRyRhLn7OA5lKSrJnBlVv" });
       checkMentionAfk(sock, chatId, msg)
       checkUnAfk(sock, chatId, msg);
       Admincontrols(sock, chatId, msg, text);
