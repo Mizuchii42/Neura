@@ -3,14 +3,12 @@ import axios from "axios"
 import FormData from "form-data"
 import dotenv from "dotenv"
 import Sticker from "wa-sticker-formatter"
+
 dotenv.config()
+
 /* =====================
    HELPER
 ===================== */
-const STICKER_SIZE = 512
-const WEBP_QUALITY = 80
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-
 
 const getMediaMessage = (msg) => {
   // gambar langsung
@@ -30,7 +28,7 @@ const parseText = (text) => {
   const [top = "_", bottom = "_"] = input.split("|")
   return {
     top: encodeURIComponent(top || "_"),
-    bottom: encodeURIComponent(bottom || "_")
+    bottom: encodeURIComponent(bottom || "_"),
   }
 }
 
@@ -51,10 +49,9 @@ const Smeme = async (sock, chatId, msg, text) => {
 
     const { top, bottom } = parseText(text)
 
-    // =====================
-    // DOWNLOAD IMAGE
-    // =====================
-
+    /* =====================
+       DOWNLOAD IMAGE
+    ===================== */
     const buffer = await downloadMediaMessage(
       mediaMsg,
       "buffer",
@@ -62,10 +59,9 @@ const Smeme = async (sock, chatId, msg, text) => {
       { reuploadRequest: sock.updateMediaMessage }
     )
 
-    // =====================
-    // UPLOAD KE IMGBB
-    // =====================
-
+    /* =====================
+       UPLOAD KE IMGBB
+    ===================== */
     const form = new FormData()
     form.append("image", buffer.toString("base64"))
 
@@ -77,21 +73,32 @@ const Smeme = async (sock, chatId, msg, text) => {
 
     const imageUrl = upload.data.data.url
 
-    // =====================
-    // GENERATE MEME
-    // =====================
+    /* =====================
+       GENERATE MEME
+    ===================== */
+    const memeUrl = `https://api.memegen.link/images/custom/${top}/${bottom}.png?background=${encodeURIComponent(
+      imageUrl
+    )}`
 
-    const memeUrl = `https://api.memegen.link/images/custom/${top}/${bottom}.png?background=${encodeURIComponent(imageUrl)}`
+    /* =====================
+       DOWNLOAD MEME IMAGE
+    ===================== */
+    const memeImage = await axios.get(memeUrl, {
+      responseType: "arraybuffer",
+    })
 
-    // =====================
-    // SEND RESULT
-    // =====================
-    const sticker = new Sticker(Buffer.from(memeUrl), {
+    /* =====================
+       CONVERT TO STICKER
+    ===================== */
+    const sticker = new Sticker(memeImage.data, {
       pack: "Meme Sticker",
       author: "Bot",
+      type: "full",
       quality: 80,
-    });
-    const stickerBuffer = await sticker.toBuffer();
+    })
+
+    const stickerBuffer = await sticker.toBuffer()
+
     await sock.sendMessage(
       chatId,
       { sticker: stickerBuffer },
