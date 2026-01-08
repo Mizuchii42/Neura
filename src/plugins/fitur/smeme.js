@@ -2,6 +2,7 @@ import { downloadMediaMessage } from "@whiskeysockets/baileys"
 import axios from "axios"
 import FormData from "form-data"
 import dotenv from "dotenv"
+import Sticker from "wa-sticker-formatter"
 dotenv.config()
 /* =====================
    HELPER
@@ -85,17 +86,15 @@ const Smeme = async (sock, chatId, msg, text) => {
     // =====================
     // SEND RESULT
     // =====================
-    const webpBuffer = await sharp(memeUrl)
-      .resize(STICKER_SIZE, STICKER_SIZE, {
-        fit: "contain",
-        background: { r: 0, g: 0, b: 0, alpha: 0 }
-      })
-      .webp({ quality: WEBP_QUALITY })
-      .toBuffer()
-
+    const sticker = new Sticker(Buffer.from(memeUrl), {
+      pack: "Meme Sticker",
+      author: "Bot",
+      quality: 80,
+    });
+    const stickerBuffer = await sticker.toBuffer();
     await sock.sendMessage(
       chatId,
-      { sticker: webpBuffer },
+      { sticker: stickerBuffer },
       { quoted: msg }
     )
 
