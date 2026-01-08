@@ -9,15 +9,15 @@ const normalizeJid = (user) => {
   return null
 }
 
-const getUserNameFast = (sock, user) => {
+const getUserNameFast = async (sock, user) => {
   const jid = normalizeJid(user)
   if (!jid) return "User"
 
-  return (
-    sock.contacts?.[jid]?.notify ||
-    sock.contacts?.[jid]?.name ||
-    jid.split("@")[0]
-  )
+  try {
+    return await sock.getName(jid)
+  } catch {
+    return jid.split("@")[0]
+  }
 }
 
 const getProfilePictureFast = async (sock, user) => {
@@ -47,7 +47,7 @@ export const welcomeGroup = async (sock, update) => {
       const jid = normalizeJid(user)
       if (!jid) continue
 
-      const userName = getUserNameFast(sock, user)
+      const userName = await getUserNameFast(sock, user)
       const ppUrl = await getProfilePictureFast(sock, user)
 
       const image = await generateWelcomeImage(
