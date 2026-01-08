@@ -49,7 +49,7 @@ export const testWelcomeCmd = async (sock, chatId, msg, text) => {
     }
 
     const metadata = await sock.groupMetadata(chatId)
-    const user = msg.key.participant || msg.key.remoteJid
+    const user = msg.pushName
     const userName = user.split("@")[0]
     const groupName = metadata.subject
 
