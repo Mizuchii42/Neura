@@ -46,7 +46,7 @@ export const generateWelcomeImage = async (ppUrl, userName, groupName) => {
   ctx.fillText(`to ${groupName}`, 240, 205)
 
   ctx.font = "18px Sans"
-  ctx.fillText("Semoga betah dan patuhi rules grup", 240, 245)
+  ctx.fillText("semoga betah di grub ya\ngunakan !menu untuk menggunakan Neura-bot", 240, 245)
 
   return canvas.toBuffer()
 }

@@ -1,33 +1,50 @@
 import { generateWelcomeImage } from "../../config/generate.js"
 
 
+const ppCache = new Map()
+
+// ambil nama user SUPER CEPAT
+const getUserNameFast = (sock, jid) => {
+  return (
+    sock.contacts?.[jid]?.notify ||
+    sock.contacts?.[jid]?.name ||
+    jid.split("@")[0]
+  )
+}
+
+// ambil PP pakai cache (anti lemot)
+const getProfilePictureFast = async (sock, jid) => {
+  if (ppCache.has(jid)) return ppCache.get(jid)
+
+  try {
+    const url = await sock.profilePictureUrl(jid, "image")
+    ppCache.set(jid, url)
+    return url
+  } catch {
+    return "https://i.imgur.com/6VBx3io.png"
+  }
+}
+
 export const welcomeGroup = async (sock, update) => {
   try {
     const { id, participants, action } = update
     if (action !== "add") return
 
-    const metadata = await sock.groupMetadata(id)
+    const groupName = sock.groupMetadataCache?.[id]?.subject || "Group"
 
     for (const user of participants) {
-      const userName = user.split("@")[0]
-      const groupName = metadata.subject
+      const userName = getUserNameFast(sock, user)
+      const ppUrl = await getProfilePictureFast(sock, user)
 
-      let ppUrl
-      try {
-        ppUrl = await sock.profilePictureUrl(user, "image")
-      } catch {
-        ppUrl = "https://i.imgur.com/6VBx3io.png"
-      }
-
-      const imageBuffer = await generateWelcomeImage(
+      const image = await generateWelcomeImage(
         ppUrl,
         userName,
         groupName
       )
 
       await sock.sendMessage(id, {
-        image: imageBuffer,
-        caption: `Selamat datang @${userName}`,
+        image,
+        caption: `Selamat datang @${user.split("@")[0]}`,
         mentions: [user]
       })
     }
@@ -35,6 +52,7 @@ export const welcomeGroup = async (sock, update) => {
     console.error("WELCOME ERROR:", err)
   }
 }
+
 export const testWelcomeCmd = async (sock, chatId, msg, text) => {
   try {
     if (text !== "!wctest") return
