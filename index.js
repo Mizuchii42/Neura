@@ -53,7 +53,7 @@ const start = async () => {
       setTimeout(start, 5000);
     }
   });
-  sock.ev.on("group-participants.update", (update) => {
+  sock.ev.on("group-participants.update", update => {
     const msg = messages[0]
     welcomeGroup(sock, update)
   })
