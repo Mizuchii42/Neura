@@ -1,3 +1,4 @@
+import { ColdownUser } from "../admin/coldownChat.js";
 import { hidetag } from "../admin/hidetag.js";
 import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
@@ -11,7 +12,7 @@ import Bossdef from "../plugins/toram/bossdef.js";
 import { dyePredictor } from "../plugins/toram/dye.js";
 import { leveling } from "../plugins/toram/lv.js";
 import { clearRaid, createRaid, joinRaid, leaveRaid, viewRaid } from "../plugins/toram/raidControl.js";
-export const cmdMenucontrol = (sock, chatId, msg, text) => {
+export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!menu")) {
     if (isBan(sock, chatId, msg)) return;
     sock.sendMessage(chatId, { text: menuMessage }, { quoted: msg });
@@ -23,6 +24,7 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
 
   if (text.startsWith("!creatRaid")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!createRaid")) return
 
     const arg = text.split(" ");
     const element = arg[1];
@@ -66,23 +68,28 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
     leaveRaid(sock, chatId, msg)
   }
   if (text.startsWith("!appview")) {
+    if (!await ColdownUser(sock, chatId, msg, "!appview")) return
     if (isBan(sock, chatId, msg)) return;
     searchApp(sock, chatId, msg, text);
   }
   if (text.startsWith("!xtall")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!xtall")) return
     searchXtall(sock, chatId, msg, text);
   }
   if (text.startsWith("!item")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!item")) return
     searchItem(sock, chatId, msg, text);
   }
   if (text.startsWith("!regist")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!regist")) return
     searchRegist(sock, chatId, msg, text);
   }
   if (text.startsWith("!ability")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!ability")) return
     searchAbility(sock, chatId, msg, text);
   }
   if (text.startsWith("!setNews")) {
@@ -95,6 +102,7 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
   }
   if (text.startsWith("!lv")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!lv")) return
     leveling(sock, chatId, msg, text);
   }
   if (text.startsWith("!hidetag")) {
@@ -103,6 +111,7 @@ export const cmdMenucontrol = (sock, chatId, msg, text) => {
   }
   if (text.startsWith("!stiker")) {
     if (isBan(sock, chatId, msg)) return;
+    if (!await ColdownUser(sock, chatId, msg, "!stiker")) return
     sticker(sock, msg, chatId);
   }
   if (text.startsWith("!bos")) {
