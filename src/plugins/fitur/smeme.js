@@ -114,7 +114,7 @@ const Smeme = async (sock, chatId, msg, text) => {
     console.error("[SMEME ERROR]", err)
     await sock.sendMessage(
       chatId,
-      { text: "❌ Gagal membuat meme." },
+      { text: "Gagal membuat stiker." + err },
       { quoted: msg }
     )
   }

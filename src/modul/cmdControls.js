@@ -1,5 +1,5 @@
 import { hidetag } from "../admin/hidetag.js";
-import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.js";
+import { buffMessage, listLeveling, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
 import { Benner } from "../plugins/fitur/benner.js";
 import { setMenu } from "../plugins/fitur/img.js";
@@ -7,6 +7,7 @@ import { getMt } from "../plugins/fitur/mt.js";
 import { getAllReport, report } from "../plugins/fitur/report.js";
 import Smeme from "../plugins/fitur/smeme.js";
 import sticker from "../plugins/fitur/stiker.js";
+import { waifu } from "../plugins/fun/waifu.js";
 import { setAfk } from "../plugins/sosial/afk.js";
 import { cekProfile, myBio, myProfile, setDesc, setidBuff, setPP } from "../plugins/sosial/bio.js";
 import { getNews, setNews } from "../plugins/sosial/news.js";
@@ -176,29 +177,16 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     getAllReport(sock, chatId, msg)
   }
-
-
-  if (text.startsWith("!spamadv")) {
+  if (text.startsWith("!listleveling")) {
     if (isBan(sock, chatId, msg)) return;
-
-    const args = text.split("|").map(v => v.trim());
-
-    const lv_char = args[1];
-    const exp = args[2];
-    const target = args[3];
-    const q1 = args[4];
-    const q2 = args[5];
-
-    if (!lv_char || !target) {
-      return sock.sendMessage(
-        chatId,
-        { text: "Format: !spamadv|lv|exp|target|bab atau from|until" },
-        { quoted: msg }
-      );
-    }
-
-    spamAdv(sock, chatId, msg, lv_char, exp, target, q1, q2);
+    sock.sendMessage(chatId, { text: listLeveling }, { quoted: msg });
   }
+  if (text.startsWith("!waifu")) {
+    if (isBan(sock, chatId, msg)) return;
+    waifu(sock, chatId, msg)
+  }
+
+
 
 
 

@@ -12,6 +12,9 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 - !hidetag
 - !setrules
 
+*Cmd Fun*
+- !waifu 
+
 *Cmd Grub*
 - !news 
 - !mybio
@@ -42,6 +45,8 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 - !lv 
 - !bos
 - !dye
+- !listLeveling
+- 
 
 *Cmd Tools*
 - !qc <text>
