@@ -96,8 +96,13 @@ export const spamAdv = async (
         : parseChapterInput(fromQuest);
 
     browser = await puppeteer.launch({
-      headless: false,
-      args: ["--no-sandbox", "--disable-gpu"],
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage"
+      ]
     });
 
     const page = await browser.newPage();
