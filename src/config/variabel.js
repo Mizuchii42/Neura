@@ -43,9 +43,8 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 - !dye
 
 *Cmd Tools*
-- !stiker <caption foto>
 - !qc <text>
-- !smeme <replay foto>
+- !stiker <replay foto>
 
 `.trim();
 

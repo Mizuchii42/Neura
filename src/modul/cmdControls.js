@@ -106,10 +106,6 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     hidetag(sock, chatId, msg, text);
   }
-  if (text.startsWith("!stiker")) {
-    if (isBan(sock, chatId, msg)) return;
-    sticker(sock, msg, chatId);
-  }
   if (text.startsWith("!bos")) {
     if (isBan(sock, chatId, msg)) return;
     Bossdef(sock, chatId, msg, text)
@@ -154,7 +150,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     qc(sock, chatId, msg, text);
   }
-  if (text.startsWith("!smeme") || msg.message.imageMessage?.caption === "!smeme") {
+  if (text.startsWith("!stiker") || msg.message.imageMessage?.caption === "!stiker") {
     if (isBan(sock, chatId, msg)) return;
     Smeme(sock, chatId, msg, text);
   }
