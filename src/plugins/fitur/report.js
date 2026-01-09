@@ -64,7 +64,7 @@ export const getAllReport = async (sock, chatId, msg) => {
       );
     }
 
-    let text = "*DAFTAR REPORT*";
+    let text = "*DAFTAR REPORT\n*";
 
     data.forEach(user => {
       text += `*${user.id}*\n`;
