@@ -69,15 +69,9 @@ export const Benner = async (sock, chatId, msg, text) => {
           chatId,
           {
             image: { url: banners[i].url },
-            caption: `*${banners[i].title}*\n\n`
           },
           { quoted: msg }
         );
-
-        // Delay untuk menghindari spam
-        if (i < banners.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
       } catch (err) {
         console.error(`Error sending banner ${i + 1}:`, err);
         await sock.sendMessage(
