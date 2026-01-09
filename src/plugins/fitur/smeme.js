@@ -69,7 +69,7 @@ const Smeme = async (sock, chatId, msg, text) => {
     form.append("image", buffer.toString("base64"))
 
     const upload = await axios.post(
-      `https://api.imgbb.com/1/upload?expiration=600&key=${process.env.BB_KEY}`,
+      `https://api.imgbb.com/1/upload?expiration=600&key=${process.env.BBI_KEY}`,
       form,
       { headers: form.getHeaders() }
     )
