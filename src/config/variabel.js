@@ -22,6 +22,8 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 - !pembolong
 - !rules
 - !afk
+- !mt 
+- !benner
 
 *Cmd Raid*
 - !createRaid <admin only>
@@ -31,7 +33,6 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 
 *Cmd Toram*
 - !xtall
-- !benner
 - !appview
 - !items 
 - !regist

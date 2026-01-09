@@ -3,6 +3,7 @@ import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.j
 import { isBan } from "../plugins/fitur/ban.js"
 import { Benner } from "../plugins/fitur/benner.js";
 import { setMenu } from "../plugins/fitur/img.js";
+import { getMt } from "../plugins/fitur/mt.js";
 import Smeme from "../plugins/fitur/smeme.js";
 import sticker from "../plugins/fitur/stiker.js";
 import { setAfk } from "../plugins/sosial/afk.js";
@@ -164,6 +165,10 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!benner")) {
     if (isBan(sock, chatId, msg)) return;
     Benner(sock, chatId, msg, text);
+  }
+  if (text.startsWith("!mt")) {
+    if (isBan(sock, chatId, msg)) return;
+    getMt(sock, chatId, msg)
   }
 
 
