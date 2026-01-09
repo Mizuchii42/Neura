@@ -1,6 +1,7 @@
 import { hidetag } from "../admin/hidetag.js";
 import { buffMessage, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
+import { Benner } from "../plugins/fitur/benner.js";
 import { setMenu } from "../plugins/fitur/img.js";
 import Smeme from "../plugins/fitur/smeme.js";
 import sticker from "../plugins/fitur/stiker.js";
@@ -160,6 +161,11 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     setidBuff(sock, chatId, msg, text);
   }
+  if (text.startsWith("!setbuff")) {
+    if (isBan(sock, chatId, msg)) return;
+    Benner(sock, chatId, msg, text);
+  }
+
 
 
 
