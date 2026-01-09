@@ -381,3 +381,28 @@ Neddle 500M
 Silk 650M
 > Harga bulan  oktober 2025\n pm kalo punya Harga terbaru
 `.trim();
+
+export const listLeveling = `
+*List Leveling KarinaV4*\n
+1-35 *shell Maks* -> Nisel montain:Montainside
+35-57 *bon Dragonewt* -> Ancient Empress tomb:area 1
+57-74 *Flare vlog* -> fiery volcano:boss map
+74-90 *masked warrior* -> Land Under Cuktivasion:hill
+90-112 *Don Yeti(mini bos)* -> Polde Ice Valley
+112-125 *Cerberus (Nightmare)* -> Spring of Rebirth: Top
+125-129  *Lapin The Necromancer* -> Trace of Dark River
+129-146 *Carberus (Ultimate)* -> pring of Rebirth: Top
+146-162 *Venena Coenubia (Hard)* -> Ultimea Palace: Throne
+162-179 *venena Coenubia (Nightmare)* ->  Ultimea Palace: Throne
+179-182 *Altoblepas* -> Rokoko Plains
+182-199 *Venena Coenubia (Ultimate)* -> Ultimea Palace: Throne
+199-215 *Finstern the Dark Dragon (Ultimate)* -> Dark Dragon Shrine: Near the Top
+215-227 *Kuzto (Ultimate)* -> Labilans Sector: Square
+227-244 *Arachnidemon (Ultimate)* -> Arche Valley: Depths
+244-253 *Ferzen the Rock Dragon (Ultimate)* -> Guardian Forest: Giant Tree
+253-266 *Trickster Dragon Mimyugon (Nightmare)* -> Operation Zone: Cockpit Area
+266-272 *Red Ash Dragon Rudis (Hard)* -> Espuma Dome: Entrance
+272-287 *Trickster Dragon Mimyugon (Ultimate)* -> Operation Zone: Cockpit Area
+285-303 *Mulgoon (Nightmare)* -> Menabra Plains (opsional -> Ash Dragon Rudis (Ultimate))
+303-305 *Red Ash Dragon Rudis (Ultimate)* -> Espuma Dome: Entrance
+`.trim()

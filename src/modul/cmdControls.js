@@ -12,6 +12,7 @@ import { cekProfile, myBio, myProfile, setDesc, setidBuff, setPP } from "../plug
 import { getNews, setNews } from "../plugins/sosial/news.js";
 import { qc } from "../plugins/sosial/qc.js";
 import { getRules, setrules } from "../plugins/sosial/rules.js";
+import { spamAdv } from "../plugins/toram/adv.js";
 import { searchAbility, searchApp, searchItem, searchRegist, searchXtall } from "../plugins/toram/anyitems.js";
 import Bossdef from "../plugins/toram/bos.js";
 import { dyePredictor } from "../plugins/toram/dye.js";
@@ -176,6 +177,16 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     getAllReport(sock, chatId, msg)
   }
 
+  if (text.startsWith("!spamadv")) {
+    if (isBan(sock, chatId, msg)) return;
+    const arg = text.split("|")
+    const lv_char = arg[1]
+    const exp = arg[2]
+    const target = arg[3]
+    const q1 = arg[4]
+    const q2 = arg[5]
+    spamAdv(sock, chatId, msg, lv_char, exp, target, q1, q2);
+  }
 
 
 
