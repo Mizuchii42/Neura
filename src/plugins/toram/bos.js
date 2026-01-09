@@ -42,7 +42,7 @@ const Bossdef = async (sock, chatId, msg, text) => {
         const difficulty = (stat.difficulty || "Normal").toUpperCase()
         const levelInfo = stat.level ? `(Lv ${stat.level})` : ""
 
-        let sectionHeader = `📑 *${difficulty}* ${levelInfo}\n`
+        let sectionHeader = `*${difficulty}* ${levelInfo}\n`
 
         // B. Filter dan Format Detail Statistik
         // Kita exclude 'difficulty' dan 'level' karena sudah ditampilkan di Header
@@ -68,7 +68,7 @@ const Bossdef = async (sock, chatId, msg, text) => {
           .join("\n")
 
         return sectionHeader + details
-      }).join("\n\n────────────────\n\n") // Pemisah antar tingkat kesulitan
+      }).join("\n") // Pemisah antar tingkat kesulitan
 
     } else {
       statsOutput = "_Data statistik mendetail tidak tersedia._"
