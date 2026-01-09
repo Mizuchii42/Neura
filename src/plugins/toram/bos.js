@@ -1,5 +1,3 @@
-import axios from "axios"
-
 const Bossdef = async (sock, chatId, msg, text) => {
   try {
     const name = text.replace("!bos", "").trim()
@@ -25,36 +23,32 @@ const Bossdef = async (sock, chatId, msg, text) => {
       )
     }
 
+    // 🔥 AMBIL SATU DATA SAJA
+    const boss = data[0]
+
     const blacklistKey = ["id"]
 
-    const result = data.map((boss, i) => {
-      const details = Object.entries(boss)
-        .filter(([key, value]) => {
-          if (blacklistKey.includes(key)) return false
-          if (key.startsWith("unnamed")) return false
-          return value !== null && value !== ""
-        })
-        .map(([key, value]) => {
-          const cleanKey = key.replace(/_/g, " ").toUpperCase()
-          const cleanValue =
-            typeof value === "string"
-              ? value.replace(/\n/g, " ")
-              : value
-          return `${cleanKey} : ${cleanValue}`
-        })
-        .join("\n")
-
-      return `
-[${i + 1}]
-${details}
-`.trim()
-    }).join("\n\n")
+    const details = Object.entries(boss)
+      .filter(([key, value]) => {
+        if (blacklistKey.includes(key)) return false
+        if (key.startsWith("unnamed")) return false
+        return value !== null && value !== ""
+      })
+      .map(([key, value]) => {
+        const cleanKey = key.replace(/_/g, " ").toUpperCase()
+        const cleanValue =
+          typeof value === "string"
+            ? value.replace(/\n/g, " ")
+            : value
+        return `${cleanKey} : ${cleanValue}`
+      })
+      .join("\n")
 
     const message = `
 Hasil pencarian: ${name}
 Ditemukan: ${count} boss
 
-${result}
+${details}
 `.trim()
 
     await sock.sendMessage(
@@ -74,4 +68,3 @@ ${result}
 }
 
 export default Bossdef
-
