@@ -177,14 +177,26 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     getAllReport(sock, chatId, msg)
   }
 
+
   if (text.startsWith("!spamadv")) {
     if (isBan(sock, chatId, msg)) return;
-    const arg = text.split("|")
-    const lv_char = arg[1]
-    const exp = arg[2]
-    const target = arg[3]
-    const q1 = arg[4]
-    const q2 = arg[5]
+
+    const args = text.split("|").map(v => v.trim());
+
+    const lv_char = args[1];
+    const exp = args[2];
+    const target = args[3];
+    const q1 = args[4];
+    const q2 = args[5];
+
+    if (!lv_char || !target) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Format: !spamadv|lv|exp|target|bab atau from|until" },
+        { quoted: msg }
+      );
+    }
+
     spamAdv(sock, chatId, msg, lv_char, exp, target, q1, q2);
   }
 

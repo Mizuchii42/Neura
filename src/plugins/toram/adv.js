@@ -224,9 +224,8 @@ Total Run: ${runs.length}
 ======================= */
 export const showUsageExamples = async (sock, chatId, msg) => {
   const text = `
-spamadv 200|50|250|bab5
-spamadv 200|50|250|1 45
-spamadv 200|50|250|semua
+> !spamadv|200|50|250|bab5
+> !spamadv|200|50|250|bab1-5
 `.trim();
 
   await sock.sendMessage(chatId, { text }, { quoted: msg });
