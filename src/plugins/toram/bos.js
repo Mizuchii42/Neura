@@ -1,6 +1,13 @@
 const Bossdef = async (sock, chatId, msg, text) => {
   try {
     const name = text.replace("!bos", "").trim()
+    if (name.length < 5) {
+      return sock.sendMessage(
+        chatId,
+        { text: "Nama boss minimal 5 huruf." },
+        { quoted: msg }
+      )
+    }
     if (!name) {
       return sock.sendMessage(
         chatId,
