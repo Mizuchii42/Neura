@@ -11,17 +11,30 @@ export const Benner = async (sock, chatId, msg, text) => {
     const $ = cheerio.load(html);
 
     // 2. Ambil URL berita terbaru
-    const urlNew = $(".infoDate > common_list > .news_border > a ").first().attr("href");
-    console.log(urlNew)
-    if (!urlNew) {
-      throw new Error("URL berita tidak ditemukan");
+    let newsLink = null;
+    const linkSelectors = [
+      ".common_list .news_border:first-child a",
+      ".news_list .news_item:first-child a",
+      ".information_list li:first-child a",
+      "a[href*='information_id']",
+    ];
+
+    for (const selector of linkSelectors) {
+      const element = $(selector);
+      if (element.length > 0) {
+        newsLink = element.attr("href");
+        break;
+      }
     }
 
-    // 3. Buat URL lengkap
-    const fullUrl = urlNew.startsWith("http") ? urlNew : `https://id.toram.jp${urlNew}`;
+    if (!newsLink) {
+      throw new Error("No news link found");
+    }
 
-    // 4. Fetch halaman detail berita
-    const bannerResponse = await fetch(fullUrl);
+    if (newsLink.startsWith("/")) {
+      newsLink = "https://id.toram.jp" + newsLink;
+    }
+    const bannerResponse = await fetch(newsLink);
     const bannerHtml = await bannerResponse.text();
     const $banner = cheerio.load(bannerHtml);
 
