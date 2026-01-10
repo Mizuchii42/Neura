@@ -6,7 +6,7 @@ const db = path.resolve("database", "raid.json");
 
 export const createRaid = async (sock, chatId, msg, text, element, count) => {
   try {
-    adminValid(sock, chatId, msg, text);
+    if (adminValid(sock, chatId, msg, text)) return
 
     const getdata = await getUserData(db);
     const raidExist = getdata.find(item => item.id === chatId);
