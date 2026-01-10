@@ -388,7 +388,7 @@ Silk 650M
 `.trim();
 
 export const listLeveling = `
-*List Leveling KarinaV4*\n
+*List Leveling*\n
 1-35 *shell Maks* -> Nisel montain:Montainside
 35-57 *bon Dragonewt* -> Ancient Empress tomb:area 1
 57-74 *Flare vlog* -> fiery volcano:boss map
