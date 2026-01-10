@@ -3,106 +3,112 @@ import * as cheerio from "cheerio";
 
 export const Banner = async (sock, msg, chatId) => {
   try {
-    const baseUrl = "https://id.toram.jp";
-    const listUrl = "https://id.toram.jp/?type_code=all#contentArea";
+    const BASE = "https://id.toram.jp";
+    const LIST_URL = "https://id.toram.jp/?type_code=all#contentArea";
 
-    // 1. ambil halaman list news
-    const response = await fetch(listUrl);
-    const html = await response.text();
+    // 1. fetch halaman utama
+    const res = await fetch(LIST_URL);
+    const html = await res.text();
     const $ = cheerio.load(html);
 
-    // 2. cari link news pertama
-    let newsLink = null;
-    $("a").each((i, el) => {
-      const href = $(el).attr("href");
-      if (href && href.includes("news")) {
-        newsLink = href;
-        return false; // break
-      }
-    });
+    /* ==========================
+       AMBIL NEWS TERBARU
+    ========================== */
+    const firstNews = $(".common_list li.news_border a").first();
 
-    if (!newsLink) throw new Error("No news link found");
-
-    if (!newsLink.startsWith("http")) {
-      newsLink = baseUrl + newsLink;
+    if (!firstNews.length) {
+      throw new Error("News tidak ditemukan");
     }
 
-    // 3. ambil halaman detail news
-    const bannerResponse = await fetch(newsLink);
-    const bannerHtml = await bannerResponse.text();
-    const $banner = cheerio.load(bannerHtml);
+    const newsLink = firstNews.attr("href");
+    const newsTitle = firstNews.find(".news_title").text().trim();
+    const newsDate = firstNews.find("time").text().replace(/[［］]/g, "").trim();
 
-    // 4. ambil judul & tanggal
-    const title = $banner(".news_title").text().trim();
-    const date = $banner(".news_date time").text().trim();
+    /* ==========================
+       FETCH DETAIL NEWS
+    ========================== */
+    const detailRes = await fetch(newsLink);
+    const detailHtml = await detailRes.text();
+    const $detail = cheerio.load(detailHtml);
 
-    // 5. ambil gambar banner
-    const bannerImages = [];
-    $banner("img").each((i, img) => {
-      const src = $banner(img).attr("src");
+    // ambil banner image di halaman detail
+    const detailImages = [];
+    $detail("img").each((i, img) => {
+      const src = $detail(img).attr("src");
       if (
         src &&
-        (src.includes("toram_orbitem") || src.includes("toram_avatar"))
+        (src.includes("toram_") || src.includes("banner"))
       ) {
-        bannerImages.push(
-          src.startsWith("http") ? src : baseUrl + src
+        detailImages.push(
+          src.startsWith("http") ? src : BASE + src
         );
       }
     });
 
-    // 6. ambil daftar campaign
-    const campaignLinks = [];
-    $banner("a").each((i, el) => {
-      const text = $banner(el).text().trim();
-      if (
-        text &&
-        !text.includes("Back to Top") &&
-        !text.includes("http")
-      ) {
-        campaignLinks.push(text);
+    /* ==========================
+       AMBIL EVENT BANNER (540x80)
+    ========================== */
+    const eventBanners = [];
+
+    $(".event_bn a.banner_link").each((i, el) => {
+      const link = $(el).attr("href");
+      const img = $(el).find("img").attr("src");
+      const alt = $(el).find("img").attr("alt");
+
+      if (img) {
+        eventBanners.push({
+          title: alt?.trim() || `Banner ${i + 1}`,
+          link,
+          image: img.startsWith("http") ? img : BASE + img
+        });
       }
     });
 
-    // hilangkan duplikat
-    const campaigns = [...new Set(campaignLinks)];
+    /* ==========================
+       FORMAT PESAN
+    ========================== */
+    let message = `*${newsTitle}*\n`;
+    message += `${newsDate}\n\n`;
+    message += `Event Banner Aktif:\n\n`;
 
-    // 7. format pesan
-    let message = `*${title}*\n${date}\n\n`;
-    message += `Kampanye Aktif:\n\n`;
-
-    campaigns.slice(0, 10).forEach((c, i) => {
-      message += `${i + 1}. ${c}\n`;
+    eventBanners.forEach((b, i) => {
+      message += `${i + 1}. ${b.title}\n`;
     });
 
-    message += `\nLink:\n${newsLink}`;
+    message += `\nDetail:\n${newsLink}`;
 
-    // 8. kirim pesan text
+    /* ==========================
+       KIRIM TEXT
+    ========================== */
     await sock.sendMessage(
       chatId,
       { text: message },
       { quoted: msg }
     );
 
-    // 9. kirim banner satu per satu
-    for (let i = 0; i < bannerImages.length; i++) {
+    /* ==========================
+       KIRIM EVENT BANNER
+    ========================== */
+    for (let i = 0; i < eventBanners.length; i++) {
       await sock.sendMessage(
         chatId,
         {
-          image: { url: bannerImages[i] },
-          caption: `Banner ${i + 1}`
+          image: { url: eventBanners[i].image },
+          caption: eventBanners[i].title
         },
         { quoted: msg }
       );
     }
 
   } catch (err) {
-    console.error("[Banner Error]", err);
+    console.error("[Toram Banner Error]", err);
     await sock.sendMessage(
       chatId,
       {
-        text: `Terjadi kesalahan saat mengambil banner.\n\n${err.message}`
+        text: `Gagal mengambil banner Toram.\n\n${err.message}`
       },
       { quoted: msg }
     );
   }
 };
+
