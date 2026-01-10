@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 
 export const Banner = async (sock, msg, chatId) => {
   try {
