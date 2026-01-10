@@ -30,7 +30,8 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 - !report
 
 *Cmd Raid*
-- !createRaid <admin only>
+- !creatraid <admin only>
+- !clear
 - !join
 - !raid 
 - !leave

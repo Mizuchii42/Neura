@@ -65,7 +65,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     viewRaid(sock, chatId, msg);
   }
-  if (text.startsWith("!clearraid")) {
+  if (text.startsWith("!clear")) {
     if (isBan(sock, chatId, msg)) return;
     clearRaid(sock, chatId, msg, text);
   }
