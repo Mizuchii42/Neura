@@ -8,84 +8,56 @@ export const Banner = async (sock, msg, chatId) => {
 
     const fixUrl = (url) => {
       if (!url) return null;
-      if (url.startsWith("http")) return url;
-      return BASE + url;
+      return url.startsWith("http") ? url : BASE + url;
     };
 
-    /* ================= 1. FETCH HALAMAN LIST ================= */
+    /* ================= FETCH LIST ================= */
     const res = await fetch(LIST_URL);
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    // ambil href PERTAMA di list news
-    const firstLink = $(".common_list li a").first();
-    if (!firstLink.length) {
-      throw new Error("Href pertama tidak ditemukan");
-    }
+    // ambil href pertama
+    const firstHref = $(".common_list li a").first().attr("href");
+    if (!firstHref) throw new Error("Href pertama tidak ditemukan");
 
-    const href = firstLink.attr("href");
-    const detailUrl = fixUrl(href);
+    const detailUrl = fixUrl(firstHref);
 
-    if (!detailUrl) {
-      throw new Error("Detail URL invalid");
-    }
-
-    /* ================= 2. FETCH HALAMAN DETAIL ================= */
+    /* ================= FETCH DETAIL ================= */
     const detailRes = await fetch(detailUrl);
     const detailHtml = await detailRes.text();
     const $detail = cheerio.load(detailHtml);
 
-    /* ================= 3. AMBIL JUDUL & TANGGAL ================= */
-    const title = $detail(".news_title").first().text().trim();
-    const date = $detail(".news_date time").first().text().trim();
+    /* ================= AMBIL NAMA + GAMBAR BANNER ================= */
+    const banners = [];
 
-    /* ================= 4. AMBIL LINK KAMPANYE ================= */
-    const campaigns = [];
-    $detail("#top")
-      .nextAll("a")
-      .each((_, el) => {
-        const text = $detail(el).text().trim();
-        if (text && !text.includes("Back to Top")) {
-          campaigns.push(text);
-        }
-      });
+    $detail("a").each((i, el) => {
+      const name = $detail(el).text().trim();
+      if (!name || name.includes("Back to Top")) return;
 
-    /* ================= 5. AMBIL GAMBAR BANNER ================= */
-    const images = [];
-    $detail("center img").each((i, el) => {
-      const src = $detail(el).attr("src");
-      if (
-        src &&
-        (src.includes("toram_orbitem") || src.includes("toram_avatar"))
-      ) {
-        images.push(fixUrl(src));
+      const img = $detail(el)
+        .nextAll("img")
+        .first()
+        .attr("src");
+
+      if (img) {
+        banners.push({
+          title: name,
+          image: fixUrl(img)
+        });
       }
     });
 
-    /* ================= 6. FORMAT PESAN ================= */
-    let text = `*${title}*\n${date}\n\n`;
-    text += `Kampanye Aktif:\n\n`;
+    if (!banners.length) {
+      throw new Error("Banner tidak ditemukan");
+    }
 
-    campaigns.forEach((c, i) => {
-      text += `${i + 1}. ${c}\n`;
-    });
-
-    text += `\nDetail:\n${detailUrl}`;
-
-    /* ================= 7. KIRIM PESAN ================= */
-    await sock.sendMessage(
-      String(chatId),
-      { text },
-      msg ? { quoted: msg } : {}
-    );
-
-    /* ================= 8. KIRIM GAMBAR ================= */
-    for (let i = 0; i < images.length; i++) {
+    /* ================= KIRIM GAMBAR + CAPTION ================= */
+    for (const b of banners) {
       await sock.sendMessage(
         String(chatId),
         {
-          image: { url: images[i] },
-          caption: `Banner ${i + 1}`
+          image: { url: b.image },
+          caption: b.title
         },
         msg ? { quoted: msg } : {}
       );
