@@ -1,4 +1,3 @@
-import { adminValid, botValid } from "./controlAdmin.js";
 import { downloadMediaMessage } from "@whiskeysockets/baileys";
 export const hidetag = async (sock, chatId, msg, text) => {
   try {

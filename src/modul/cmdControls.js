@@ -19,6 +19,8 @@ import Bossdef from "../plugins/toram/bos.js";
 import { dyePredictor } from "../plugins/toram/dye.js";
 import { leveling } from "../plugins/toram/lv.js";
 import { clearRaid, createRaid, joinRaid, leaveRaid, viewRaid } from "../plugins/toram/raidControl.js";
+import { downloadToMp3 } from "../plugins/vip/downloader/music.js";
+import fs from "fs";
 export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!menu")) {
     if (isBan(sock, chatId, msg)) return;
@@ -152,6 +154,18 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!waifu")) {
     if (isBan(sock, chatId, msg)) return;
     waifu(sock, chatId, msg)
+  }
+  if (text.startsWith("!ffmpeg")) {
+    if (isBan(sock, chatId, msg)) return;
+    const url = text.replace("!ffmpeg", "");
+    const output = "download.mp3";
+    const mp3 = await downloadToMp3(url, output);
+    await sock.sendMessage(chatId, {
+      audio: fs.readFileSync(mp3),
+      mimetype: "audio/mpeg"
+    });
+
+
   }
 
 
