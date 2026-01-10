@@ -6,7 +6,6 @@ const db = path.resolve("database", "raid.json");
 
 export const createRaid = async (sock, chatId, msg, text, element, count) => {
   try {
-    adminValid(sock, chatId, msg, text)
 
     const getdata = await getUserData(db);
     const raidExist = getdata.find(item => item.id === chatId);
@@ -82,7 +81,7 @@ export const joinRaid = async (sock, chatId, msg, text) => {
     if (!raid) {
       return sock.sendMessage(
         chatId,
-        { text: "Raid belum dibuat\n> gunakan !creatRaid terlebih dahulu" },
+        { text: "Raid belum dibuat\n> gunakan !creatraid terlebih dahulu" },
         { quoted: msg }
       );
     }
@@ -181,7 +180,7 @@ export const viewRaid = async (sock, chatId, msg) => {
     if (!raid) {
       return sock.sendMessage(
         chatId,
-        { text: "Raid belum dibuat\n> gunakan !creatRaid terlebih dahulu" },
+        { text: "Raid belum dibuat\n> gunakan !creatraid terlebih dahulu" },
         { quoted: msg }
       );
     }
@@ -226,7 +225,6 @@ ${list("pt4")}
 export const clearRaid = async (sock, chatId, msg, text) => {
   try {
     // validasi admin
-    adminValid(sock, chatId, msg, text)
     const data = await getUserData(db);
 
     const index = data.findIndex(item => item.id === chatId);

@@ -29,23 +29,6 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     sock.sendMessage(chatId, { text: buffMessage }, { quoted: msg });
   }
 
-  if (text.startsWith("!creatraid")) {
-    if (isBan(sock, chatId, msg)) return;
-
-    const arg = text.split(" ");
-    const element = arg[1];
-    const hadiah = arg[2];
-
-    if (!element || !hadiah) {
-      return sock.sendMessage(
-        chatId,
-        { text: "Susunan cmd tidak sesuai\n> use !creatRaid <element> <hadiah>" },
-        { quoted: msg }
-      );
-    }
-
-    createRaid(sock, chatId, msg, text, element, hadiah);
-  }
 
   if (text.startsWith("!join")) {
     if (isBan(sock, chatId, msg)) return;
@@ -64,10 +47,6 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!raid")) {
     if (isBan(sock, chatId, msg)) return;
     viewRaid(sock, chatId, msg);
-  }
-  if (text.startsWith("!clear")) {
-    if (isBan(sock, chatId, msg)) return;
-    clearRaid(sock, chatId, msg, text);
   }
   if (text.startsWith("!leave")) {
     if (isBan(sock, chatId, msg)) return;
@@ -93,10 +72,6 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     searchAbility(sock, chatId, msg, text);
   }
-  if (text.startsWith("!setnews")) {
-    if (isBan(sock, chatId, msg)) return;
-    setNews(sock, chatId, msg, text);
-  }
   if (text.startsWith("!news")) {
     if (isBan(sock, chatId, msg)) return;
     getNews(sock, chatId, msg);
@@ -105,10 +80,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     if (isBan(sock, chatId, msg)) return;
     leveling(sock, chatId, msg, text);
   }
-  if (text.startsWith("!hidetag")) {
-    if (isBan(sock, chatId, msg)) return;
-    hidetag(sock, chatId, msg, text);
-  }
+
   if (text.startsWith("!bos")) {
     if (isBan(sock, chatId, msg)) return;
     Bossdef(sock, chatId, msg, text)
@@ -132,10 +104,6 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
   if (text.startsWith("!pembolong")) {
     if (isBan(sock, chatId, msg)) return;
     sock.sendMessage(chatId, { text: messagePembolong }, { quoted: msg })
-  }
-  if (text.startsWith("!setrules")) {
-    if (isBan(sock, chatId, msg)) return;
-    setrules(sock, chatId, msg, text)
   }
   if (text.startsWith("!rules")) {
     if (isBan(sock, chatId, msg)) return;

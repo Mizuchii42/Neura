@@ -6,8 +6,7 @@ const db = path.resolve("database", "rules.json");
 
 export const setrules = async (sock, chatId, msg, text) => {
   try {
-    if (!adminValid(sock, chatId, msg, text)) return;
-    const newsText = text.replace("!seteules", "").trim();
+    const newsText = text.replace("!setrules", "").trim();
 
     if (!newsText) {
       return sock.sendMessage(
