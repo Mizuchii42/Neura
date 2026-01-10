@@ -226,7 +226,7 @@ ${list("pt4")}
 export const clearRaid = async (sock, chatId, msg, text) => {
   try {
     // validasi admin
-    adminValid(sock, chatId, msg, text);
+    if (adminValid(sock, chatId, msg, text)) return;
 
     const data = await getUserData(db);
 
