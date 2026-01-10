@@ -63,7 +63,7 @@ export const Banner = async (sock, msg, chatId) => {
     });
 
     /* ================= 6. FORMAT PESAN ================= */
-    let text = `*${title}*\n${date}\n`;
+    let text = `${date}\n`;
     text += `Kampanye Aktif:\n`;
 
     campaigns.forEach((c, i) => {
@@ -85,7 +85,6 @@ export const Banner = async (sock, msg, chatId) => {
         String(chatId),
         {
           image: { url: images[i] },
-          caption: `Banner ${i + 1}`
         },
         msg ? { quoted: msg } : {}
       );
