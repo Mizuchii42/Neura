@@ -6,14 +6,14 @@ const db = path.resolve("database", "raid.json");
 
 export const createRaid = async (sock, chatId, msg, text, element, count) => {
   try {
-    if (adminValid(sock, chatId, msg, text)) return
+    adminValid(sock, chatId, msg, text)
 
     const getdata = await getUserData(db);
     const raidExist = getdata.find(item => item.id === chatId);
     if (raidExist) {
       return sock.sendMessage(
         chatId,
-        { text: "Party raid sudah dibuat\n> gunakan !clearRaid untuk membubarkan" },
+        { text: "Party raid sudah dibuat\n> gunakan !clear untuk membubarkan" },
         { quoted: msg }
       );
     }
@@ -226,8 +226,7 @@ ${list("pt4")}
 export const clearRaid = async (sock, chatId, msg, text) => {
   try {
     // validasi admin
-    if (adminValid(sock, chatId, msg, text)) return;
-
+    adminValid(sock, chatId, msg, text)
     const data = await getUserData(db);
 
     const index = data.findIndex(item => item.id === chatId);
