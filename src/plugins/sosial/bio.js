@@ -208,7 +208,7 @@ export const myProfile = async (sock, chatId, msg) => {
     if (!user) {
       return sock.sendMessage(
         chatId,
-        { text: "Profil belum dibuat." },
+        { text: "Profil belum dibuat.\ncara membuat bio:\n - gunakan !setdesc untuk menambahkan bio\n - gunakan !setpp untuk menambahkan foto profil\n - gunakan !setbuff untuk menambahkan buff code pada profile\n - gunakan !profil <tag target> untuk melihat profil orang" },
         { quoted: msg }
       );
     }

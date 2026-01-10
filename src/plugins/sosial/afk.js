@@ -5,7 +5,7 @@ export const setAfk = async (sock, chatId, msg, text) => {
   try {
     const pesan = text.replace("!afk", "");
 
-    if (!pesan) return sock.sendMessage(chatId, { text: "harap masukan pesan setelah !afk" }, { quoted: msg })
+    if (!pesan) return sock.sendMessage(chatId, { text: "harap masukan pesan setelah !afk\ncontoh !afk makan" }, { quoted: msg })
     const data = getUserData(db)
     const userId = msg.key.participant || msg.key.remoteJid;
     let afkEntry = data.find((i) => i.userId === userId)

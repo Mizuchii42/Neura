@@ -73,7 +73,7 @@ export const getNews = async (sock, chatId, msg) => {
     if (!newsData || !newsData.news) {
       return sock.sendMessage(
         chatId,
-        { text: "Belum ada news di grup ini" },
+        { text: "Belum ada news di grup ini\ngunakan !setnews untuk menambahkan berita" },
         { quoted: msg }
       );
     }

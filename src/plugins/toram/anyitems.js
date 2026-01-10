@@ -228,7 +228,7 @@ export const searchItem = async (sock, chatId, msg, text) => {
     if (!data || data.length === 0) {
       return sock.sendMessage(
         chatId,
-        { text: "Item tidak ditemukan" },
+        { text: "Item tidak ditemukan\ntips jika item yang dicari tidak ada gunakan nama versi bahasa inggrisnya" },
         { quoted: msg }
       );
     }

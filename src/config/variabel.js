@@ -52,7 +52,7 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 *Cmd Tools*
 - !qc <text>
 - !stiker <replay foto>
-
+> banyak banyk litrasi dalam membaca menu!!
 `.trim();
 
 export const buffMessage = `

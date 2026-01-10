@@ -5,7 +5,7 @@ export const leveling = async (sock, chatid, msg, text) => {
   const arg = text.split(" ");
   const lvl = arg[1]
   const gap = 7
-  if (!lvl) return sock.sendMessage(chatid, { text: "format salah\n> use !lv <level mu>" }, { quoted: msg })
+  if (!lvl) return sock.sendMessage(chatid, { text: "format salah\n> gunakan !lv <sertakan lv mu sekarang>" }, { quoted: msg })
   const url = `https://coryn.club/leveling.php?lv=${lvl}&gap=${gap}&bonusEXP=0`;
   const response = await fetch(url, {
     headers: {

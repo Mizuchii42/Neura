@@ -62,7 +62,7 @@ export const getRules = async (sock, chatId, msg) => {
     if (!Array.isArray(data) || data.length === 0) {
       return sock.sendMessage(
         chatId,
-        { text: "Belum ada rules di grup ini" },
+        { text: "Belum ada rules di grup ini\ngunakan !setrules untuk menambahkan rules" },
         { quoted: msg }
       );
     }

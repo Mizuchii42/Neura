@@ -23,7 +23,7 @@ const Bossdef = async (sock, chatId, msg, text) => {
     if (!data || data.length === 0) {
       return sock.sendMessage(
         chatId,
-        { text: `Boss dengan nama "${name}" tidak ditemukan dalam basis data.` },
+        { text: `Boss dengan nama "${name}" tidak ditemukan dalam basis data.\n jika tidak menemukan bos yang di cari mohon bantu report !report <nama bos>` },
         { quoted: msg }
       )
     }

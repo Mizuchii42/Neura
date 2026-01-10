@@ -8,7 +8,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export const qc = async (sock, chatId, msg, text) => {
   try {
     const message = text.replace("!qc", "");
-    if (!message) return sock.sendMessage(chatId, { text: "mana textnya?" }, { quoted: msg });
+    if (!message) return sock.sendMessage(chatId, { text: "mana textnya?\n> !qc gini nyet" }, { quoted: msg });
 
     const pp = "https://telegra.ph/file/24fa902ead26340f3df2c.png";
     const name = msg.pushName;
