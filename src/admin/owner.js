@@ -1,5 +1,4 @@
 import { ban, isOwner, unBan } from "../plugins/fitur/ban.js"
-import { broadcastGroup } from "./bc.js";
 import { setNocoldown } from "./coldownChat.js";
 
 export const ownerControls = async (sock, chatId, msg, text) => {
@@ -9,7 +8,6 @@ export const ownerControls = async (sock, chatId, msg, text) => {
 
   }
   if (text.startsWith("!unban")) {
-    if (!isOwner(sock, msg, chatId)) return;
     unBan(sock, chatId, msg);
   }
   if (text === "!nocdgroup") {
@@ -17,6 +15,6 @@ export const ownerControls = async (sock, chatId, msg, text) => {
     await setNocoldown(sock, chatId, msg)
   }
   if (text.startsWith("!bc")) {
-    broadcastGroup(sock, chatId, msg, text);
+
   }
 }
