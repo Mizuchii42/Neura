@@ -1,3 +1,4 @@
+import { ColdownUser } from "../admin/coldownChat.js";
 import { hidetag } from "../admin/hidetag.js";
 import { buffMessage, listLeveling, menuMessage, messagePembolong } from "../config/variabel.js";
 import { isBan } from "../plugins/fitur/ban.js"
@@ -152,6 +153,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     sock.sendMessage(chatId, { text: listLeveling }, { quoted: msg });
   }
   if (text.startsWith("!waifu")) {
+    ColdownUser(sock, chatId, msg, "!waifu")
     if (isBan(sock, chatId, msg)) return;
     waifu(sock, chatId, msg)
   }

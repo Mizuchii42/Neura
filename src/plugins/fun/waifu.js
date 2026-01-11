@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const waifu = async (sock, chatId, msg) => {
   try {
+
     const { data } = await axios.get("https://api.waifu.pics/sfw/waifu");
 
     if (!data?.url) {
