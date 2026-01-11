@@ -124,7 +124,6 @@ export const isOwner = (sock, msg, chatId) => {
 
 export const unBan = async (sock, chatId, msg) => {
   try {
-    if (!isOwner(sock, chatId, msg)) return;
     const mention =
       msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid
 
