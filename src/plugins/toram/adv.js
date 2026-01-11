@@ -49,21 +49,25 @@ export default async function spamAdv(sock, msg, args) {
     }, { quoted: msg })
   }
 
-  const lv = Number(args[0])
-  const lvP = Number(args[1])
-  const targetLv = Number(args[2])
-  const babMulai = Number(args[3])
-  const babAkhir = Number(args[4])
+  const lv = parseInt(args[0])
+  const lvP = parseInt(args[1])
+  const targetLv = parseInt(args[2])
+  let babMulai = parseInt(args[3])
+  let babAkhir = parseInt(args[4])
 
-  if (babMulai > babAkhir) {
+  if ([lv, lvP, targetLv, babMulai, babAkhir].some(isNaN)) {
     return sock.sendMessage(msg.key.remoteJid, {
-      text: "❌ Bab mulai tidak boleh lebih besar dari bab akhir"
+      text: "Semua parameter harus berupa ANGKA"
     }, { quoted: msg })
+  }
+
+  // ✅ AUTO FIX jika kebalik
+  if (babMulai > babAkhir) {
+    ;[babMulai, babAkhir] = [babAkhir, babMulai]
   }
 
   const keys = Object.keys(mq_data)
 
-  // cari index chapter
   const startIndex = keys.findIndex(k => k === `Chapter ${babMulai}`)
   const endIndex = keys.findIndex(k => k === `Chapter ${babAkhir + 1}`)
 
@@ -84,7 +88,7 @@ export default async function spamAdv(sock, msg, args) {
   const [hasilLv, hasilLvP] = addXP(lv, lvP, totalXP)
 
   const text = `
-*MAIN QUEST (CHAPTER)*
+*SPAM ADV (MAIN QUEST)*
 
 Chapter:
 ${babMulai} → ${babAkhir}
