@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import { ownerControls } from "./src/admin/owner.js";
 import { cmdMenucontrol } from "./src/modul/cmdControls.js";
 import { checkMentionAfk, checkUnAfk } from "./src/plugins/sosial/afk.js";
+import { CekColdown } from "./src/admin/coldownChat.js";
 dotenv.config();
 const start = async () => {
   const { state, saveCreds } = await useMultiFileAuthState("./auth_save");
