@@ -49,11 +49,11 @@ export default async function spamAdv(sock, msg, args) {
     }, { quoted: msg })
   }
 
-  const lv = parseInt(args[0])
-  const lvP = parseInt(args[1])
-  const targetLv = parseInt(args[2])
-  let babMulai = parseInt(args[3])
-  let babAkhir = parseInt(args[4])
+  const lv = parseInt(args[1])
+  const lvP = parseInt(args[2])
+  const targetLv = parseInt(args[3])
+  let babMulai = parseInt(args[4])
+  let babAkhir = parseInt(args[5])
 
   if ([lv, lvP, targetLv, babMulai, babAkhir].some(isNaN)) {
     return sock.sendMessage(msg.key.remoteJid, {
