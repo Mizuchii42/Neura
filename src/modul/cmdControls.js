@@ -179,7 +179,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     try {
 
       const args = text.split(" ").slice(1);
-      if (!args) return sock.sendMessage(chatId, { text: "gunakan !sheetfill untuk melihat cara penggunaan nya" }, { quoted: msg })
+      if (args.length === 0) return sock.sendMessage(chatId, { text: "gunakan !sheetfill untuk melihat cara penggunaan nya" }, { quoted: msg })
       const statConfig = parseCommand(args);
 
       console.log("Memulai scraper dengan konfigurasi:", statConfig);
