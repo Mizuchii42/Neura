@@ -14,7 +14,7 @@ import { cekProfile, myBio, myProfile, setDesc, setidBuff, setPP } from "../plug
 import { getNews, setNews } from "../plugins/sosial/news.js";
 import { qc } from "../plugins/sosial/qc.js";
 import { getRules, setrules } from "../plugins/sosial/rules.js";
-import { spamAdv } from "../plugins/toram/adv.js";
+import mqExpCommand, { spamAdv } from "../plugins/toram/adv.js";
 import { searchAbility, searchApp, searchItem, searchRegist, searchXtall } from "../plugins/toram/anyitems.js";
 import Bossdef from "../plugins/toram/bos.js";
 import { dyePredictor } from "../plugins/toram/dye.js";
@@ -171,6 +171,12 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     });
 
 
+  }
+
+  if (text.startsWith("!spamadv")) {
+    if (isBan(sock, chatId, msg)) return;
+    const args = text.slice(1).trim().split(/\s+/)
+    mqExpCommand(sock, msg, args)
   }
 
 

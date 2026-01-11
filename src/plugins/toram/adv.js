@@ -1,179 +1,87 @@
-import puppeteer from "puppeteer";
+import { mq_data } from "../fitur/expData.js"
 
-/* =======================
-   HELPER
-======================= */
-const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+export const floor = Math.floor
+export const ceil = Math.ceil
 
-/* =======================
-   QUEST MAPPING
-======================= */
-const QUEST_MAPPING = {
-  bab1: { from: 1, until: 9, name: "Bab 1" },
-  bab2: { from: 11, until: 18, name: "Bab 2" },
-  bab3: { from: 20, until: 27, name: "Bab 3" },
-  bab4: { from: 29, until: 36, name: "Bab 4" },
-  bab5: { from: 38, until: 45, name: "Bab 5" },
-  bab6: { from: 47, until: 55, name: "Bab 6" },
-  bab7: { from: 57, until: 64, name: "Bab 7" },
-  bab8: { from: 66, until: 75, name: "Bab 8" },
-  bab9: { from: 77, until: 86, name: "Bab 9" },
-  bab10: { from: 88, until: 95, name: "Bab 10" },
-  bab11: { from: 97, until: 105, name: "Bab 11" },
-  bab12: { from: 107, until: 115, name: "Bab 12" },
-  bab13: { from: 117, until: 124, name: "Bab 13" },
-  bab14: { from: 126, until: 132, name: "Bab 14" },
-  bab15: { from: 134, until: 136, name: "Bab 15" },
-  all: { from: 1, until: 136, name: "Semua Bab" },
-  semua: { from: 1, until: 136, name: "Semua Bab" },
-};
+export const getXP = (lv) =>
+  floor(0.025 * lv ** 4 + 2 * lv)
 
-/* =======================
-   PARSE INPUT
-======================= */
-const parseChapterInput = (input) => {
-  if (!input) return QUEST_MAPPING.all;
+export const getTotalXP = (begin, beginPercentage, end) => {
+  let xp = floor((1 - beginPercentage / 100) * getXP(begin))
+  for (let i = begin + 1; i < end; i++) {
+    xp += getXP(i)
+  }
+  return xp
+}
 
-  const key = input.toLowerCase().trim();
-  if (QUEST_MAPPING[key]) return QUEST_MAPPING[key];
+export const addXP = (begin, beginPercentage, extraXP) => {
+  let remainingXP = extraXP
+  let needXP = (1 - beginPercentage / 100) * getXP(begin)
 
-  const range = key.match(/(\d+)-(\d+)/);
-  if (range) {
-    const s = QUEST_MAPPING[`bab${range[1]}`];
-    const e = QUEST_MAPPING[`bab${range[2]}`];
-    if (s && e) {
-      return { from: s.from, until: e.until, name: `Bab ${range[1]}-${range[2]}` };
-    }
+  if (extraXP < needXP) {
+    let currentXP =
+      beginPercentage / 100 * getXP(begin) + extraXP
+    return [begin, floor(100 * currentXP / getXP(begin))]
   }
 
-  const single = key.match(/(\d+)/);
-  if (single && QUEST_MAPPING[`bab${single[1]}`]) {
-    return QUEST_MAPPING[`bab${single[1]}`];
+  remainingXP -= needXP
+  let lv = begin + 1
+
+  while (getXP(lv) <= remainingXP) {
+    remainingXP -= getXP(lv)
+    lv++
   }
 
-  return QUEST_MAPPING.all;
-};
+  let lvP = floor(100 * remainingXP / getXP(lv))
+  return [lv, lvP]
+}
 
-/* =======================
-   MAIN QUEST CALCULATOR
-======================= */
-export const spamAdv = async (
-  sock,
-  chatId,
-  msg,
-  lv_char,
-  exp_char,
-  lv_target,
-  fromQuest = null,
-  untilQuest = null
-) => {
-  let browser;
 
-  if (!lv_char || !lv_target) {
-    return showUsageExamples(sock, chatId, msg);
+
+
+export default async function mqExpCommand(sock, msg, args) {
+  if (args.length < 5) {
+    return sock.sendMessage(msg.key.remoteJid, {
+      text:
+        "Format:\n" +
+        "!spamadv <level> <percent> <targetLv> <babMulai> <babAkhir>"
+    }, { quoted: msg })
   }
 
-  try {
-    lv_char = Number(lv_char);
-    exp_char = Number(exp_char) || 0;
-    lv_target = Number(lv_target);
+  const lv = Number(args[0])
+  const lvP = Number(args[1])
+  const targetLv = Number(args[2])
+  const babMulai = Number(args[3])
+  const babAkhir = Number(args[4])
 
-    if (lv_char >= lv_target) {
-      throw new Error("Target level harus lebih tinggi");
-    }
-
-    const questRange =
-      fromQuest && untilQuest
-        ? {
-          from: Number(fromQuest),
-          until: Number(untilQuest),
-          name: `Quest ${fromQuest}-${untilQuest}`,
-        }
-        : parseChapterInput(fromQuest);
-
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-      ],
-    });
-
-    const page = await browser.newPage();
-    await page.goto("https://toramtools.github.io/xp.html", {
-      waitUntil: "networkidle2",
-    });
-
-    await page.type("#level", String(lv_char));
-    await page.type("#level-percentage", String(exp_char));
-    await page.type("#target-level", String(lv_target));
-
-    await page.click("#mq-ui");
-    await sleep(500);
-
-    await page.select("#mq-from", String(questRange.from));
-    await page.select("#mq-until", String(questRange.until));
-
-    // tunggu hasil UI benar-benar muncul
-    await page.waitForFunction(() =>
-      [...document.querySelectorAll("div")]
-        .some(el => el.textContent.includes("After doing Main Quest"))
-    );
-
-    const result = await page.evaluate(() => {
-      const getText = (keyword) =>
-        [...document.querySelectorAll("div")]
-          .find(el => el.textContent.includes(keyword))
-          ?.textContent || "-";
-
-      return {
-        xpRequired: getText("Total XP required:")
-          .replace("Total XP required:", "")
-          .trim(),
-        xpGained: getText("XP:")
-          .replace("XP:", "")
-          .trim(),
-        finalLevel: getText("After doing Main Quest")
-          .replace("After doing Main Quest's above range you'll reach", "")
-          .trim(),
-      };
-    });
-
-    const text = `
-Main Quest Calculator (${questRange.name})
-
-Level ${lv_char} (${exp_char}%) -> ${lv_target}
-Quest ${questRange.from}-${questRange.until}
-
-XP Required : ${result.xpRequired}
-XP Gained   : ${result.xpGained}
-Result      : ${result.finalLevel}
-`.trim();
-
-    await sock.sendMessage(chatId, { text }, { quoted: msg });
-    return result;
-
-  } catch (err) {
-    await sock.sendMessage(chatId, { text: err.message }, { quoted: msg });
-  } finally {
-    if (browser) await browser.close();
+  if (babMulai > babAkhir) {
+    return sock.sendMessage(msg.key.remoteJid, {
+      text: "❌ Bab mulai tidak boleh lebih besar dari bab akhir"
+    }, { quoted: msg })
   }
-};
 
-/* =======================
-   USAGE
-======================= */
-export const showUsageExamples = async (sock, chatId, msg) => {
+  const keys = Object.keys(mq_data)
+  let totalXP = 0
+
+  for (let bab = babMulai; bab <= babAkhir; bab++) {
+    totalXP += Number(mq_data[keys[bab]]) || 0
+  }
+
+  const [hasilLv, hasilLvP] = addXP(lv, lvP, totalXP)
+
   const text = `
-spamadv|200|50|250|bab7-12
-spamadv|200|50|250|1|115
-spamadv|200|50|250|semua
-`.trim();
+*MAIN QUEST (BAB)*
 
-  await sock.sendMessage(chatId, { text }, { quoted: msg });
-};
+Bab:
+${keys[babMulai]} → ${keys[babAkhir]}
 
-export default { spamAdv };
+Total EXP:
+${totalXP.toLocaleString()}
+
+Hasil Level:
+Lv ${hasilLv} (${hasilLvP}%)
+`.trim()
+
+  await sock.sendMessage(msg.key.remoteJid, { text }, { quoted: msg })
+}
 
