@@ -10,34 +10,6 @@ puppeteer.use(StealthPlugin());
 
 
 
-export function parseCommand(args) {
-  const config = {
-    positiveStats: [],
-    negativeStats: [],
-    characterLevel: 300,
-    startingPotential: 90,
-  };
-  args.forEach((arg) => {
-    arg = arg.toLowerCase();
-    if (arg.startsWith("lv")) {
-      config.characterLevel = parseInt(arg.substring(2), 10);
-    } else if (arg.startsWith("pot")) {
-      config.startingPotential = parseInt(arg.substring(3), 10);
-    } else if (arg.startsWith("+") || arg.startsWith("-")) {
-      const isPositive = arg.startsWith("+");
-      const rawStat = arg.substring(1);
-      const match = rawStat.match(/^(.*?)(\d+|max)$/);
-      if (!match) return;
-      const [, name, level] = match;
-      const fullName = statMap[name];
-      if (!fullName) return;
-      const statObject = { name: fullName, level: level.toUpperCase() };
-      if (isPositive) config.positiveStats.push(statObject);
-      else config.negativeStats.push(statObject);
-    }
-  });
-  return config;
-}
 
 // --- CONFIGURATION ---
 const CONFIG = {
