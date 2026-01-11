@@ -182,7 +182,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
       const statConfig = parseCommand(args);
 
       console.log("Memulai scraper dengan konfigurasi:", statConfig);
-      const result = await tanaka(statConfig, { headless: false });
+      const result = await tanaka(statConfig, { headless: "new" });
 
       const replyMessage = formatResultMessage(result);
       await sock.sendMessage(chatId, { text: replyMessage });
