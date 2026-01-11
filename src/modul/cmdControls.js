@@ -153,7 +153,7 @@ export const cmdMenucontrol = async (sock, chatId, msg, text) => {
     sock.sendMessage(chatId, { text: listLeveling }, { quoted: msg });
   }
   if (text.startsWith("!waifu")) {
-    ColdownUser(sock, chatId, msg, "!waifu")
+    if (ColdownUser(sock, chatId, msg, "!waifu")) return;
     if (isBan(sock, chatId, msg)) return;
     waifu(sock, chatId, msg)
   }
