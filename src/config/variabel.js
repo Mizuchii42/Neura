@@ -57,8 +57,7 @@ komunitas: https://whatsapp.com/channel/0029VbAmhBF7z4kjOQcoVV0A
 
 export const buffMessage = `
 Code buff\n> by Neura Bot
-> use !report untuk lapor bug
-
+> use !report <nama buff, code buff> untuk menambahkan code buff mu kedalam bot
 *Max HP*
 Code : 1010032 Lv 10
 Code : 1010084 Lv 10
@@ -342,50 +341,7 @@ Code : 1032727 Lv 5
 ━━━━━━━━━━━━━━━━━━━━`.trim();
 
 export const messagePembolong = `
-
-extract 3 - 4M
-
-ohs 
-0-1 10-16,5M
-1-2 80M
-
-bow 
-0-1 6,5-15M
-1-2 75-80M
-
-ths
-0-1 10-20M
-1-2 84 -96M
-
-md
-0-1 6-10M
-1-2 28-50M
-
-ktn
-0-1 10-11M
-1-2 75-80M
-
-knuck
-1-2 10,5- 15M
-1-2 70-90M
-
-hb
-0-1 11-15M
-1-2 90-100M
-
-bwg:
-0-1 9-12M
-1-2 25-35M
-
-staf:
-0-1 15-21M
-1-2 80-100M
-
-Legendry Piercer 76-120M
-Ornment 401M
-Neddle 500M
-Silk 650M
-> Harga bulan  oktober 2025\n pm kalo punya Harga terbaru
+invalid
 `.trim();
 
 export const listLeveling = `
