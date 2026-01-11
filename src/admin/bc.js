@@ -1,14 +1,23 @@
+import fs from "fs"
+
 async function getAllGroups(sock) {
   try {
     const groups = await sock.groupFetchAllParticipating()
-    return Object.keys(groups) // array JID grup
+    return Object.keys(groups)
   } catch (error) {
     console.error('Error fetching groups:', error)
     return []
   }
 }
 
-export const bcGroups = async (sock, pesan) => {
+/**
+ * payload:
+ * {
+ *   text?: string
+ *   image?: string | Buffer
+ * }
+ */
+export const bcGroups = async (sock, payload) => {
   const groupJids = await getAllGroups(sock)
 
   if (groupJids.length === 0) {
@@ -23,18 +32,37 @@ export const bcGroups = async (sock, pesan) => {
 
   for (let i = 0; i < groupJids.length; i++) {
     const jid = groupJids[i]
+
     try {
-      await sock.sendMessage(jid, {
-        text: `*Broadcast*\n\n${pesan}`
-      })
+      const message = {}
+
+      // === IMAGE ===
+      if (payload.image) {
+        message.image = Buffer.isBuffer(payload.image)
+          ? payload.image
+          : payload.image.startsWith("http")
+            ? { url: payload.image }
+            : fs.readFileSync(payload.image)
+
+        message.caption = payload.text
+          ? `*Broadcast*\n\n${payload.text}`
+          : '*Broadcast*'
+      }
+
+      // === TEXT ONLY ===
+      else if (payload.text) {
+        message.text = `*Broadcast*\n\n${payload.text}`
+      }
+
+      await sock.sendMessage(jid, message)
       successCount++
-      console.log(`[${i + 1}/${groupJids.length}] Berhasil kirim ke grup: ${jid}`)
+      console.log(`[${i + 1}/${groupJids.length}] Berhasil → ${jid}`)
+
     } catch (error) {
       failedCount++
-      console.error(`[${i + 1}/${groupJids.length}] Gagal kirim ke grup ${jid}:`, error.message)
+      console.error(`[${i + 1}/${groupJids.length}] Gagal → ${jid}:`, error.message)
     }
 
-    // Delay 1.5 detik (AMAN) - kecuali untuk pesan terakhir
     if (i < groupJids.length - 1) {
       await new Promise(res => setTimeout(res, 1500))
     }
@@ -44,48 +72,53 @@ export const bcGroups = async (sock, pesan) => {
   return { total: groupJids.length, success: successCount, failed: failedCount }
 }
 
-// Fungsi tambahan: broadcast dengan filter
-export const broadcastFilteredGroups = async (sock, pesan, filterFn) => {
-  const groups = await sock.groupFetchAllParticipating()
-  const filteredJids = Object.entries(groups)
-    .filter(([jid, group]) => filterFn(group))
-    .map(([jid]) => jid)
+export const handleBroadcast = async (sock, msg) => {
+  const chatId = msg.key.remoteJid
+  const isGroup = chatId.endsWith("@g.us")
 
-  let successCount = 0
-  let failedCount = 0
-
-  console.log(`Memulai broadcast ke ${filteredJids.length} grup (filtered)...`)
-
-  for (let i = 0; i < filteredJids.length; i++) {
-    const jid = filteredJids[i]
-    try {
-      await sock.sendMessage(jid, {
-        text: `*Broadcast*\n\n${pesan}`
-      })
-      successCount++
-      console.log(`[${i + 1}/${filteredJids.length}] Berhasil kirim ke grup: ${jid}`)
-    } catch (error) {
-      failedCount++
-      console.error(`[${i + 1}/${filteredJids.length}] Gagal kirim ke grup ${jid}:`, error.message)
-    }
-
-    if (i < filteredJids.length - 1) {
-      await new Promise(res => setTimeout(res, 1500))
-    }
+  // ❌ Tolak jika dari grup
+  if (isGroup) {
+    return sock.sendMessage(chatId, {
+      text: "❌ Broadcast hanya bisa dari chat pribadi bot"
+    }, { quoted: msg })
   }
 
-  return { total: filteredJids.length, success: successCount, failed: failedCount }
+  const text =
+    msg.message?.conversation ||
+    msg.message?.extendedTextMessage?.text ||
+    ""
+
+  const caption = text.replace(/^!bc\s*/i, "").trim()
+
+  if (!caption && !msg.message?.imageMessage) {
+    return sock.sendMessage(chatId, {
+      text: "Gunakan:\n!bc teks\natau kirim gambar dengan caption !bc"
+    }, { quoted: msg })
+  }
+
+  await sock.sendMessage(chatId, {
+    text: "Broadcast dimulai..."
+  }, { quoted: msg })
+
+  // === IMAGE ===
+  if (msg.message?.imageMessage) {
+    const buffer = await sock.downloadMediaMessage(msg)
+
+    await bcGroups(sock, {
+      image: buffer,
+      text: caption
+    })
+  }
+
+  // === TEXT ONLY ===
+  else {
+    await bcGroups(sock, {
+      text: caption
+    })
+  }
+
+  await sock.sendMessage(chatId, {
+    text: "✅ Broadcast selesai"
+  })
 }
 
-// Contoh penggunaan:
-// import { broadcastAllGroups, broadcastFilteredGroups } from './bc.js'
-
-// Broadcast ke semua grup
-// const result = await broadcastAllGroups(sock, 'Halo semua!')
-
-// Broadcast hanya ke grup dengan jumlah anggota > 50
-// const result = await broadcastFilteredGroups(
-//   sock,
-//   'Pesan penting!',
-//   (group) => group.participants.length > 50
-// )
